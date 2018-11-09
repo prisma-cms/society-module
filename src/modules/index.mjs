@@ -18,6 +18,9 @@ const { createWriteStream, unlinkSync } = fs;
 const { fileLoader, mergeTypes } = MergeSchema
 
 
+import UserModule from "./user";
+import ResourceModule from "./resource";
+
 
 class Module extends PrismaModule {
 
@@ -25,9 +28,11 @@ class Module extends PrismaModule {
   constructor(props = {}) {
 
     super(props);
-
-    Object.assign(this, {
-    });
+    
+    this.mergeModules([
+      UserModule,
+      ResourceModule,
+    ]);
 
   }
 

@@ -1,0 +1,9 @@
+
+type Vote {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  Thread: Thread! @relation(name: "ThreadVotes")
+  User: User! @relation(name: "UserVotes")
+  value: Float!
+}

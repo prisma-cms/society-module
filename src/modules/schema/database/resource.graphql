@@ -1,0 +1,5 @@
+type Resource {
+  id: ID! @unique
+  Thread: Thread @relation(name: "ResourceThread")
+  Tags: [Tag!]! @relation(name: "ResourcesTags")
+}

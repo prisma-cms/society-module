@@ -1,0 +1,8 @@
+
+type Tag {
+  name: String!
+  count: Int! @default(value: 0)
+  Resources: [Resource!]! @relation(name: "ResourcesTags")
+}
+
+ 
