@@ -67,8 +67,8 @@ const requiredTypes = [
         "id",
         "createdAt",
         "updatedAt",
-        "targetId",
-        "targetType",
+        // "targetId",
+        // "targetType",
         "commentsCount",
         "rating",
         "positiveVotesCount",
@@ -76,6 +76,7 @@ const requiredTypes = [
         "neutralVotesCount",
         "Votes",
         "Comments",
+        "Resource",
       ],
       prisma: [
       ],
