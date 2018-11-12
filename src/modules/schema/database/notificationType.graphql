@@ -1,6 +1,8 @@
 
 type NotificationType{
   id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
   name: String! @unique
   comment: String
   Users: [User!]! @relation(name: "UserNotificationTypes")

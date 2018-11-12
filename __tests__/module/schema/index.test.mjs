@@ -38,6 +38,8 @@ const requiredTypes = [
         "id",
         "Votes",
         "NotificationTypes",
+        "Tags",
+        "ResourceTags",
       ],
       prisma: [
       ],
@@ -51,8 +53,36 @@ const requiredTypes = [
     fields: {
       both: [
         "id",
-        "Thread",
         "Tags",
+        // "commentsCount",
+        "rating",
+        "positiveVotesCount",
+        "negativeVotesCount",
+        "neutralVotesCount",
+        "Votes",
+        "CommentTarget",
+        "Comments",
+        "CreatedBy",
+      ],
+      prisma: [
+      ],
+      api: [
+        "Thread",
+      ],
+    },
+  },
+  {
+    name: "Tag",
+    fields: {
+      both: [
+        "id",
+        "createdAt",
+        "updatedAt",
+        "name",
+        // "count",
+        "status",
+        "Resources",
+        "CreatedBy",
       ],
       prisma: [
       ],
@@ -61,21 +91,14 @@ const requiredTypes = [
     },
   },
   {
-    name: "Thread",
+    name: "ResourceTag",
     fields: {
       both: [
         "id",
         "createdAt",
         "updatedAt",
-        // "targetId",
-        // "targetType",
-        "commentsCount",
-        "rating",
-        "positiveVotesCount",
-        "negativeVotesCount",
-        "neutralVotesCount",
-        "Votes",
-        "Comments",
+        "status",
+        "CreatedBy",
         "Resource",
       ],
       prisma: [
@@ -84,6 +107,30 @@ const requiredTypes = [
       ],
     },
   },
+  // {
+  //   name: "Thread",
+  //   fields: {
+  //     both: [
+  //     ],
+  //     prisma: [
+  //     ],
+  //     api: [
+  //       "id",
+  //       "createdAt",
+  //       "updatedAt",
+  //       // "targetId",
+  //       // "targetType",
+  //       "commentsCount",
+  //       "rating",
+  //       "positiveVotesCount",
+  //       "negativeVotesCount",
+  //       "neutralVotesCount",
+  //       "Votes",
+  //       "Comments",
+  //       "Resource",
+  //     ],
+  //   },
+  // },
   {
     name: "Vote",
     fields: {
@@ -92,12 +139,13 @@ const requiredTypes = [
         "createdAt",
         "updatedAt",
         "value",
-        "Thread",
         "User",
+        "Resource",
       ],
       prisma: [
       ],
       api: [
+        "Thread",
       ],
     },
   },
@@ -116,35 +164,6 @@ const requiredTypes = [
       ],
     },
   },
-  {
-    name: "Tag",
-    fields: {
-      both: [
-        "name",
-        "count",
-        "Resources",
-      ],
-      prisma: [
-      ],
-      api: [
-      ],
-    },
-  },
-  // {
-  //   name: "TopicTag",
-  //   fields: {
-  //     both: [
-  //     ],
-  //     prisma: [
-  //     ],
-  //     api: [
-  //       "id",
-  //       "name",
-  //       "topic_id",
-  //       "Topic",
-  //     ],
-  //   },
-  // },
   // {
   //   name: "Comment",
   //   fields: {

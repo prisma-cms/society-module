@@ -3,7 +3,7 @@ type Vote {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  Thread: Thread! @relation(name: "ThreadVotes")
+  Resource: Resource! @relation(name: "ResourceVotes")
   User: User! @relation(name: "UserVotes")
   value: Float!
 }

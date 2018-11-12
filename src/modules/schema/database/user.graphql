@@ -3,4 +3,6 @@ type User {
   id: ID! @unique
   Votes: [Vote!]! @relation(name: "UserVotes")
   NotificationTypes: [NotificationType!]! @relation(name: "UserNotificationTypes")
+  Tags: [Tag!]! @relation(name: "UserTags")
+  ResourceTags: [ResourceTag!]! @relation(name: "UserResourceTag")
 }

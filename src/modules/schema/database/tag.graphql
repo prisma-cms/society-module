@@ -1,8 +1,22 @@
 
+enum TagStatus {
+  Active
+  Moderated
+  Blocked
+}
+
 type Tag {
-  name: String!
-  count: Int! @default(value: 0)
-  Resources: [Resource!]! @relation(name: "ResourcesTags")
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String! @unique
+  # count: Int! @default(value: 0)
+  # active: Boolean! @default(value: true)
+  # moderated: Boolean! @default(value: false)
+  status: TagStatus! @default(value: Active)
+  # Resources: [Resource!]! @relation(name: "ResourcesTags")
+  Resources: [ResourceTag!]! @relation(name: "ResourcesTagsTag")
+  CreatedBy: User! @relation(name: "UserTags")
 }
 
  

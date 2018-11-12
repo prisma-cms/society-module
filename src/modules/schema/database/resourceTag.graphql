@@ -1,0 +1,12 @@
+
+type ResourceTag {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  status: TagStatus! @default(value: Active)
+  Resource: Resource! @relation(name: "ResourcesTagsResource")
+  Tag: Tag! @relation(name: "ResourcesTagsTag")
+  CreatedBy: User! @relation(name: "UserResourceTag")
+}
+
+ 
