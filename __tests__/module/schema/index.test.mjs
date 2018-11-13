@@ -38,6 +38,7 @@ const requiredTypes = [
         "id",
         "Votes",
         "NotificationTypes",
+        "NotificationTypesCreated",
         "Tags",
         "ResourceTags",
       ],
@@ -157,6 +158,7 @@ const requiredTypes = [
         "name",
         "comment",
         "Users",
+        "CreatedBy",
       ],
       prisma: [
       ],
