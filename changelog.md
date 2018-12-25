@@ -1,3 +1,7 @@
+1.2.3
+===============================
+- getApiSchema() now get prisma schema from current module dir only
+
 1.2.2
 ===============================
 - Added NotificationTypes relations
@@ -9,6 +13,14 @@
 1.2.0
 ===============================
 - Added schema
+
+1.1.5
+===============================
+- Upgraded nodemon
+
+1.1.4
+===============================
+- getApiSchema() now get prisma schema from current module dir only
 
 1.1.3
 ===============================
