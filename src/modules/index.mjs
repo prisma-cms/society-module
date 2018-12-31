@@ -20,6 +20,7 @@ const { fileLoader, mergeTypes } = MergeSchema
 
 import UserModule from "./user";
 import ResourceModule from "./resource";
+import NoticeModule from "./notice";
 import ChatModule from "./chat";
 
 
@@ -33,6 +34,7 @@ class Module extends PrismaModule {
     this.mergeModules([
       UserModule,
       ResourceModule,
+      NoticeModule,
       ChatModule,
     ]);
 
@@ -76,6 +78,7 @@ class Module extends PrismaModule {
       "UserCreateManyWithoutRoomsInput",
 
       "ChatMessageCreateInput",
+      "ChatRoomCreateOneWithoutMessagesInput",
 
       "ChatMessageReadedCreateInput",
       "ChatMessageCreateOneWithoutReadedByInput",

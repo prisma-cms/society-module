@@ -28,5 +28,10 @@ type Mutation {
     data: ChatMessageCreateInput!
   ): ChatMessageResponse!
 
+  updateChatMessageProcessor(
+    data: ChatMessageUpdateInput!
+    where: ChatMessageWhereUniqueInput!
+  ): ChatMessageResponse!
+
 
 }

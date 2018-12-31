@@ -406,7 +406,7 @@ const updateChatRoom = function(source, args, ctx, info){
 
 
 const Mutation = {
-  createChatMessageProcessor,
+  // createChatMessageProcessor,
   updateChatRoom,
 };
 

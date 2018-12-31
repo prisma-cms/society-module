@@ -1,0 +1,14 @@
+
+enum NoticeType{
+  ChatMessage
+  Call
+  CallRequest
+}
+
+type Notice{
+  id: ID! @unique
+  createdAt: DateTime!
+  type: NoticeType!
+  User: User! @relation(name: "NoticeUser")
+  ChatMessage: ChatMessage
+}
