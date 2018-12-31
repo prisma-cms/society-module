@@ -1,0 +1,16 @@
+type ChatMessageReadedResponse{
+  success: Boolean!
+  message: String!
+  errors: [Error!]!
+  data: ChatMessageReaded
+}
+
+input ChatMessageReadedCreateInput {
+  Message: ChatMessageCreateOneWithoutReadedByInput!
+  # User: UserCreateOneWithoutReadedMessagesInput!
+}
+
+input ChatMessageCreateOneWithoutReadedByInput {
+  # create: ChatMessageCreateWithoutReadedByInput
+  connect: ChatMessageWhereUniqueInput
+}

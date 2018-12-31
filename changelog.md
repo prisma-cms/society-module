@@ -1,3 +1,7 @@
+1.2.4
+===============================
+- Added chat
+
 1.2.3
 ===============================
 - getApiSchema() now get prisma schema from current module dir only

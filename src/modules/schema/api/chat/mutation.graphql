@@ -1,0 +1,32 @@
+
+
+type Mutation {
+  
+  createChatRoomProcessor(
+    data: ChatRoomCreateInput!
+  ): ChatRoomResponse!
+  
+  updateChatRoomProcessor(
+    data: ChatRoomUpdateInput!
+    where: ChatRoomWhereUniqueInput!
+  ): ChatRoomResponse!
+
+  # createChatMessagePublic(text: Json!, roomId: ID!): ChatMessage!
+
+  createChatMessageReadedProcessor(
+    data: ChatMessageReadedCreateInput!
+  ): ChatMessageReadedResponse!
+ 
+
+  # sendDirectMessage(
+  #   to: ID
+  #   roomId: ID
+  #   text: Json!
+  # ): ChatMessageResponse
+
+  createChatMessageProcessor(
+    data: ChatMessageCreateInput!
+  ): ChatMessageResponse!
+
+
+}

@@ -1,0 +1,8 @@
+
+type User {
+  Rooms: [ChatRoom!]! @relation(name: "ChatRoomsMembers")
+  CreatedRooms: [ChatRoom!]! @relation(name: "ChatRoomCreatedBy", onDelete: CASCADE)
+
+  Messages: [ChatMessage!]! @relation(name: "ChatMessageCreatedBy")
+  ReadedMessages: [ChatMessageReaded!]! @relation(name: "ChatMessageReadedByUser")
+}

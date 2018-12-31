@@ -1,0 +1,16 @@
+
+type ChatMessageResponse{
+  success: Boolean!
+  message: String!
+  errors: [Error!]!
+  data: ChatMessage
+}
+
+input ChatMessageCreateInput {
+  to: ID
+  roomId: ID
+  text: Json!
+  # CreatedBy: UserCreateOneWithoutMessagesInput!
+  # Room: ChatRoomCreateOneWithoutMessagesInput!
+  # ReadedBy: ChatMessageReadedCreateManyWithoutMessageInput
+}

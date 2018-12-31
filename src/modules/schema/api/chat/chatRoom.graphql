@@ -1,0 +1,27 @@
+
+type ChatRoomResponse{
+  success: Boolean!
+  message: String!
+  errors: [Error!]!
+  data: ChatRoom
+}
+
+input ChatRoomCreateInput {
+  name: String!
+  Members: UserCreateManyWithoutRoomsInput
+  # CreatedBy: UserCreateOneWithoutCreatedRoomsInput!
+  # Messages: ChatMessageCreateManyWithoutRoomInput
+}
+
+input UserCreateManyWithoutRoomsInput {
+  # create: [UserCreateWithoutRoomsInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
+
+input  ChatRoomUpdateInput {
+  name: String
+  Members: UserUpdateManyWithoutRoomsInput
+  # CreatedBy: UserUpdateOneWithoutCreatedRoomsInput
+  # Messages: ChatMessageUpdateManyWithoutRoomInput
+}

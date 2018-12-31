@@ -1,0 +1,26 @@
+
+
+type ChatMessage{
+  id: ID! @unique
+  text: Json!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  CreatedBy: User! @relation(name: "ChatMessageCreatedBy")
+  
+  Room: ChatRoom! @relation(name: "ChatRoomMessages")
+
+  # Cascade now works 
+  # https://github.com/graphcool/prisma/issues/1936
+  ReadedBy: [ChatMessageReaded!]! @relation(name: "ChatMessageReadedByMessage", onDelete: CASCADE)
+}
+
+
+# Отметка о прочтении
+type ChatMessageReaded{
+  id: ID! @unique
+  createdAt: DateTime!
+  Message: ChatMessage! @relation(name: "ChatMessageReadedByMessage", onDelete: SET_NULL)
+  User: User! @relation(name: "ChatMessageReadedByUser", onDelete: SET_NULL)
+}
+ 
