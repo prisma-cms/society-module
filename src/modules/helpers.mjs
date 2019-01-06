@@ -60,7 +60,7 @@ export const prepareAccesibleMessagesQuery = function (args, ctx) {
   } = currentUser || {};
 
 
-  let OR = [ 
+  let OR = [
     {
       Room: prepareAccesibleRoomsQuery({}, ctx),
     }
@@ -84,3 +84,46 @@ export const prepareAccesibleMessagesQuery = function (args, ctx) {
   };
 }
 
+/**
+ * Получаем только свои уведомления
+ */
+export const prepareAccesibleNoticesQuery = function (args, ctx) {
+
+  let {
+    where,
+  } = args;
+
+  const {
+    currentUser,
+  } = ctx;
+
+  const {
+    id: currentUserId,
+  } = currentUser || {};
+
+
+  let OR = [
+  ];
+
+  if (currentUserId) {
+    OR.push({
+      User: {
+        id: currentUserId,
+      },
+    });
+  }
+  else {
+    OR.push({
+      id: null,
+    });
+  }
+
+  // console.log("prepareAccesibleMessagesQuery OR", OR);
+
+  return {
+    OR,
+    AND: where ? {
+      ...where,
+    } : undefined,
+  };
+}

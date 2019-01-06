@@ -3,6 +3,9 @@ import chalk from "chalk";
 import Processor from "@prisma-cms/prisma-processor";
 import PrismaModule from "@prisma-cms/prisma-module";
 
+import {
+  prepareAccesibleNoticesQuery,
+} from "../helpers";
 
 
 class NoticeProcessor extends Processor {
@@ -35,7 +38,7 @@ class NoticeProcessor extends Processor {
 
 
     Members = Members || {};
-    
+
 
     let {
       connect,
@@ -86,15 +89,16 @@ class Module extends PrismaModule {
 
     return {
       Query: {
-        noticesConnection: this.noticesConnection,
-        notices: this.notices,
-        notice: this.notice,
+        noticesConnection: this.noticesConnection.bind(this),
+        notices: this.notices.bind(this),
+        notice: this.notice.bind(this),
       },
-      // Mutation: {
-      //   createNoticeProcessor: this.createNoticeProcessor.bind(this),
-      //   updateNoticeProcessor: this.updateNoticeProcessor.bind(this),
+      Mutation: {
+        // createNoticeProcessor: this.createNoticeProcessor.bind(this),
+        // updateNoticeProcessor: this.updateNoticeProcessor.bind(this),
+        deleteNotice: this.deleteNotice.bind(this),
 
-      // },
+      },
       Subscription: {
         notice: {
           subscribe: async (parent, args, ctx, info) => {
@@ -108,18 +112,36 @@ class Module extends PrismaModule {
   }
 
 
-  notices(source, args, ctx, info) {
-    return ctx.db.query.notices({}, info);
+  async notice(source, args, ctx, info) {
+    // return ctx.db.query.notice({}, info);
+    let objects = await this.notices(source, args, ctx, info);
+
+    return objects && objects[0] || null;
   }
 
-  notice(source, args, ctx, info) {
-    return ctx.db.query.notice({}, info);
+  notices(source, args, ctx, info) {
+
+    Object.assign(args, {
+      where: this.prepareNoticesQueryArgs(args, ctx),
+    });
+
+    return ctx.db.query.notices(args, info);
   }
 
   noticesConnection(source, args, ctx, info) {
-    return ctx.db.query.noticesConnection({}, info);
+
+    Object.assign(args, {
+      where: this.prepareNoticesQueryArgs(args, ctx),
+    });
+
+    return ctx.db.query.noticesConnection(args, info);
   }
 
+
+  prepareNoticesQueryArgs(args, ctx) {
+
+    return prepareAccesibleNoticesQuery(args, ctx);
+  }
 
   getProcessor(ctx) {
     return new (this.getProcessorClass())(ctx);
@@ -137,6 +159,11 @@ class Module extends PrismaModule {
   updateNoticeProcessor(source, args, ctx, info) {
 
     return this.getProcessor(ctx).updateWithResponse("Notice", args, info);
+  }
+
+  deleteNotice(source, args, ctx, info) {
+
+    return ctx.db.mutation.deleteNotice(args, info);
   }
 
   NoticeResponse() {

@@ -5,7 +5,7 @@ import PrismaModule from "@prisma-cms/prisma-module";
 
 import {
   prepareAccesibleMessagesQuery,
-} from "../helpers";
+} from "../../helpers";
 
 class ChatMessageProcessor extends Processor {
 
@@ -286,7 +286,10 @@ class ChatMessageProcessor extends Processor {
 
             // console.log("Members", Members);
 
+            // console.log("Members.findIndex", Members.findIndex(({ id }) => id === currentUserId));
+
             if (isPublic && Members.findIndex(({ id }) => id === currentUserId) === -1) {
+
 
               const result = await db.mutation.updateChatRoom({
                 where: {

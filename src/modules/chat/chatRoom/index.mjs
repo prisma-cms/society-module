@@ -5,7 +5,7 @@ import PrismaModule from "@prisma-cms/prisma-module";
 
 import {
   prepareAccesibleRoomsQuery,
-} from "../helpers";
+} from "../../helpers";
 
 class ChatRoomProcessor extends Processor {
 
