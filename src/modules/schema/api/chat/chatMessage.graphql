@@ -8,7 +8,7 @@ type ChatMessageResponse{
 
 input ChatMessageCreateInput {
   # roomId: ID
-  text: Json!
+  content: Json
   # CreatedBy: UserCreateOneWithoutMessagesInput!
   Room: ChatRoomCreateOneWithoutMessagesInput!
   # ReadedBy: ChatMessageReadedCreateManyWithoutMessageInput

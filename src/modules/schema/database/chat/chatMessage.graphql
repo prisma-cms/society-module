@@ -1,10 +1,13 @@
 
 
-type ChatMessage{
+type ChatMessage {
   id: ID! @unique
-  text: Json!
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  content: Json
+  """Raw text from content"""
+  contentText: String
 
   CreatedBy: User! @relation(name: "ChatMessageCreatedBy")
   
@@ -17,7 +20,7 @@ type ChatMessage{
 
 
 # Отметка о прочтении
-type ChatMessageReaded{
+type ChatMessageReaded {
   id: ID! @unique
   createdAt: DateTime!
   Message: ChatMessage! @relation(name: "ChatMessageReadedByMessage", onDelete: SET_NULL)

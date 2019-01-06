@@ -11,17 +11,21 @@ input ChatRoomCreateInput {
   Members: UserCreateManyWithoutRoomsInput
   # CreatedBy: UserCreateOneWithoutCreatedRoomsInput!
   # Messages: ChatMessageCreateManyWithoutRoomInput
+  isPublic: Boolean = false
+  code: ID
 }
-
-input UserCreateManyWithoutRoomsInput {
-  # create: [UserCreateWithoutRoomsInput!]
-  connect: [UserWhereUniqueInput!]
-}
-
 
 input  ChatRoomUpdateInput {
   name: String
   Members: UserUpdateManyWithoutRoomsInput
   # CreatedBy: UserUpdateOneWithoutCreatedRoomsInput
   # Messages: ChatMessageUpdateManyWithoutRoomInput
+  isPublic: Boolean
+  code: ID
+}
+
+
+input UserCreateManyWithoutRoomsInput {
+  # create: [UserCreateWithoutRoomsInput!]
+  connect: [UserWhereUniqueInput!]
 }

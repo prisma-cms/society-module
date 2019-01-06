@@ -132,6 +132,8 @@ class Module extends PrismaModule {
     Object.assign(resolvers, {
     });
 
+    // console.log("resolvers", resolvers);
+
     return resolvers;
   }
 

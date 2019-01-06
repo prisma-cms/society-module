@@ -3,7 +3,9 @@ import chalk from "chalk";
 import Processor from "@prisma-cms/prisma-processor";
 import PrismaModule from "@prisma-cms/prisma-module";
 
-
+import {
+  prepareAccesibleRoomsQuery,
+} from "../helpers";
 
 class ChatRoomProcessor extends Processor {
 
@@ -35,7 +37,7 @@ class ChatRoomProcessor extends Processor {
 
 
     Members = Members || {};
-    
+
 
     let {
       connect,
@@ -86,9 +88,9 @@ class Module extends PrismaModule {
 
     return {
       Query: {
-        chatRoomsConnection: this.chatRoomsConnection,
-        chatRooms: this.chatRooms,
-        chatRoom: this.chatRoom,
+        chatRoomsConnection: this.chatRoomsConnection.bind(this),
+        chatRooms: this.chatRooms.bind(this),
+        chatRoom: this.chatRoom.bind(this),
       },
       Mutation: {
         createChatRoomProcessor: this.createChatRoomProcessor.bind(this),
@@ -103,21 +105,83 @@ class Module extends PrismaModule {
         },
       },
       ChatRoomResponse: this.ChatRoomResponse(),
+      // ChatRoom: {
+      //   Members: () => [],
+      // },
     }
 
   }
 
 
-  chatRooms(source, args, ctx, info) {
-    return ctx.db.query.chatRooms({}, info);
+  async chatRoom(source, args, ctx, info) {
+    // return ctx.db.query.chatRoom(args, info);
+
+    let objects = await this.chatRooms(source, args, ctx, info);
+
+    return objects && objects[0] || null;
   }
 
-  chatRoom(source, args, ctx, info) {
-    return ctx.db.query.chatRoom({}, info);
+  chatRooms(source, args, ctx, info) {
+
+    Object.assign(args, {
+      where: this.prepareChatRoomsQueryArgs(args, ctx),
+    });
+
+    return ctx.db.query.chatRooms(args, info);
   }
 
   chatRoomsConnection(source, args, ctx, info) {
-    return ctx.db.query.chatRoomsConnection({}, info);
+
+    Object.assign(args, {
+      where: this.prepareChatRoomsQueryArgs(args, ctx),
+    });
+
+    return ctx.db.query.chatRoomsConnection(args, info);
+  }
+
+
+  /**
+   * Получить можно только публичные комнаты, 
+   * или в которых пользователь состоит
+   */
+  prepareChatRoomsQueryArgs(args, ctx) {
+
+    // let {
+    //   where,
+    // } = args;
+
+    // const {
+    //   currentUser,
+    // } = ctx;
+
+    // const {
+    //   id: currentUserId,
+    // } = currentUser || {};
+
+
+    // let OR = [
+    //   {
+    //     isPublic: true,
+    //   },
+    // ];
+
+    // if (currentUserId) {
+    //   OR.push({
+    //     Members_some: {
+    //       id: currentUserId,
+    //     },
+    //   });
+    // }
+
+
+    // return {
+    //   OR,
+    //   AND: where ? {
+    //     ...where,
+    //   } : undefined,
+    // };
+
+    return prepareAccesibleRoomsQuery(args, ctx);
   }
 
 

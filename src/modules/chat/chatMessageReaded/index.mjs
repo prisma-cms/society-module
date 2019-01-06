@@ -125,15 +125,15 @@ class Module extends PrismaModule {
 
 
   chatMessageReadeds(source, args, ctx, info) {
-    return ctx.db.query.chatMessageReadeds({}, info);
+    return ctx.db.query.chatMessageReadeds(args, info);
   }
 
   chatMessageReaded(source, args, ctx, info) {
-    return ctx.db.query.chatMessageReaded({}, info);
+    return ctx.db.query.chatMessageReaded(args, info);
   }
 
   chatMessageReadedsConnection(source, args, ctx, info) {
-    return ctx.db.query.chatMessageReadedsConnection({}, info);
+    return ctx.db.query.chatMessageReadedsConnection(args, info);
   }
 
 

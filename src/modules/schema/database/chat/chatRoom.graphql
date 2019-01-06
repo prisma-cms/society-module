@@ -4,6 +4,7 @@ type ChatRoom {
   createdAt: DateTime!
   updatedAt: DateTime!
   name: String!
+  code: ID @unique
 
   Members: [User!]! @relation(name: "ChatRoomsMembers")
   CreatedBy: User! @relation(name: "ChatRoomCreatedBy", onDelete: SET_NULL)
@@ -11,5 +12,7 @@ type ChatRoom {
   Messages: [ChatMessage!]! @relation(name: "ChatRoomMessages")
 
   # Call: Call @relation(name: "ChatRoomCall", onDelete: CASCADE)
+
+  isPublic: Boolean @default(value: false)
 }
 

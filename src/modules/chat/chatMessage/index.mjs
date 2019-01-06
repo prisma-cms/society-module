@@ -3,7 +3,9 @@ import chalk from "chalk";
 import Processor from "@prisma-cms/prisma-processor";
 import PrismaModule from "@prisma-cms/prisma-module";
 
-
+import {
+  prepareAccesibleMessagesQuery,
+} from "../helpers";
 
 class ChatMessageProcessor extends Processor {
 
@@ -44,6 +46,14 @@ class ChatMessageProcessor extends Processor {
       id: currentUserId,
     } = await this.getUser(true);
 
+
+    const {
+      content,
+    } = this.prepareContent(args) || {};
+
+    if (!content) {
+      return this.addError("Сообщение не заполнено");
+    }
 
     Room = Room || {}
 
@@ -389,12 +399,55 @@ class ChatMessageProcessor extends Processor {
       })
   }
 
+
   async mutate(method, args, info) {
 
+    this.prepareContent(args);
 
     return super.mutate(method, args);
   }
 
+
+  prepareContent(args) {
+
+    let {
+      data,
+    } = args;
+
+    let {
+      content,
+    } = data || {}
+
+    if (content !== undefined) {
+
+      const {
+        blocks,
+      } = content || {};
+
+      if (blocks && blocks.length) {
+
+        let textArray = blocks && blocks.map(({ text }) => text && text.trim() || "").filter(n => n) || [];
+
+        let contentText = textArray.join("\n");
+
+        Object.assign(data, {
+          content,
+          contentText,
+        });
+
+        if (contentText) {
+          return {
+            content,
+            contentText,
+          }
+        }
+      }
+      // else {
+      //   return this.addError("Сообщение не заполнено");
+      // }
+
+    }
+  }
 
 
   async getRoomWithMember(args) {
@@ -448,9 +501,9 @@ class Module extends PrismaModule {
 
     return {
       Query: {
-        chatMessagesConnection: this.chatMessagesConnection,
-        chatMessages: this.chatMessages,
-        chatMessage: this.chatMessage,
+        chatMessagesConnection: this.chatMessagesConnection.bind(this),
+        chatMessages: this.chatMessages.bind(this),
+        chatMessage: this.chatMessage.bind(this),
       },
       Mutation: {
         createChatMessageProcessor: this.createChatMessageProcessor.bind(this),
@@ -469,19 +522,40 @@ class Module extends PrismaModule {
 
   }
 
+  
+  async chatMessage(source, args, ctx, info) {
+
+    let objects = await this.chatMessages(source, args, ctx, info);
+
+    return objects && objects[0] || null;
+
+    // return ctx.db.query.chatMessage(args, info);
+  }
+
 
   chatMessages(source, args, ctx, info) {
-    return ctx.db.query.chatMessages({}, info);
+
+    Object.assign(args, {
+      where: this.prepareChatMessagesQueryArgs(args, ctx),
+    });
+
+    return ctx.db.query.chatMessages(args, info);
   }
 
-  chatMessage(source, args, ctx, info) {
-    return ctx.db.query.chatMessage({}, info);
-  }
 
   chatMessagesConnection(source, args, ctx, info) {
-    return ctx.db.query.chatMessagesConnection({}, info);
+
+    Object.assign(args, {
+      where: this.prepareChatMessagesQueryArgs(args, ctx),
+    });
+
+    return ctx.db.query.chatMessagesConnection(args, info);
   }
 
+  prepareChatMessagesQueryArgs(args, ctx) {
+
+    return prepareAccesibleMessagesQuery(args, ctx);
+  }
 
   getProcessor(ctx) {
     return new (this.getProcessorClass())(ctx);

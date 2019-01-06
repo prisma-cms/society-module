@@ -1,5 +1,5 @@
 
-## Module boilerplate server for [@prisma-cms](https://github.com/prisma-cms)
+## Society module for [@prisma-cms](https://github.com/prisma-cms)
 
 ### Usage
 
@@ -8,8 +8,8 @@
 Download module
 
 ```
-git clone https://github.com/prisma-cms/module-boilerplate
-cd module-boilerplate
+git clone https://github.com/prisma-cms/society-module
+cd society-module
 ```
 Install dependencies
 
@@ -17,7 +17,7 @@ Install dependencies
 
 Update module schema 
 
-`./module-boilerplate/src/modules/schema/` (see [instruction](https://github.com/prisma-cms/boilerplate#readme))
+`./society-module/src/modules/schema/` (see [instruction](https://github.com/prisma-cms/boilerplate#readme))
 
 Deploy schema to prisma-server
 
@@ -25,7 +25,7 @@ Deploy schema to prisma-server
 
 Start server
 
-`endpoint={CREATED_PRISMA_ENDPOINT} yarn start`
+`endpoint={CREATED_PRISMA_ENDPOINT} APP_SECRET={STRONG_APP_SECRET} yarn start`
 
 Open in brouser http://localhost:4000
 
@@ -45,4 +45,4 @@ yarn start
 ```
 Open in brouser http://localhost:3000
 
-Note that *module-boilerplate* should work on port 4000 or configure [proxySetup](https://github.com/prisma-cms/component-boilerplate/blob/master/src/setupProxy.js).
+Note that *society-module* should work on port 4000 or configure [proxySetup](https://github.com/prisma-cms/component-boilerplate/blob/master/src/setupProxy.js).
