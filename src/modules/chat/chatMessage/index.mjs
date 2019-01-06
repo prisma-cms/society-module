@@ -91,9 +91,16 @@ class ChatMessageProcessor extends Processor {
       chatRoom = await this.getRoomWithMember({
         where: {
           id: roomId,
-          Members_some: {
-            id: currentUserId
-          },
+          OR: [
+            {
+              isPublic: true,
+            },
+            {
+              Members_some: {
+                id: currentUserId
+              },
+            }
+          ],
         },
       });
 
@@ -129,7 +136,6 @@ class ChatMessageProcessor extends Processor {
         } = toUser;
 
         // Пытаемся получить чат-комнату
-        // !!! Этот запрос выполняется ниже при создании
         chatRoom = await this.getRoomWithMember({
           where: {
             AND: [{
@@ -187,46 +193,6 @@ class ChatMessageProcessor extends Processor {
           }
 
 
-          // console.log(chalk.green("Creat chatRoom chatRoomData"), chatRoomData);
-
-
-          // chatRoom = await db.mutation.createChatRoom({
-          //   data: chatRoomData,
-          // })
-          //   .catch(error => {
-          //     console.error("Creat chatRoom error", error);
-          //     throw error;
-          //   });
-
-          // /**
-          //  * Получаем комнату с участниками, так как при создании они не участвуют в выдаче
-          //  */
-          // chatRoom = await this.getRoomWithMember({
-          //   where: {
-          //     // Members_every: {
-          //     //   id_in: [currentUserId, toUser.id]
-          //     // },
-          //     // AND: [{
-          //     //   Members_some: {
-          //     //     id: currentUserId
-          //     //   },
-          //     // }, {
-          //     //   Members_some: {
-          //     //     id: toUser.id
-          //     //   },
-          //     // }],
-          //     AND: [{
-          //       Members_some: {
-          //         id: currentUserId
-          //       },
-          //     }, {
-          //       Members_some: {
-          //         id: toUserId,
-          //       },
-          //     }],
-          //     Members_none: { id_not_in: [currentUserId, toUserId] }
-          //   },
-          // });
 
         }
         else {
@@ -236,12 +202,6 @@ class ChatMessageProcessor extends Processor {
            * Важно это сделать раньше обновления сообщения, чтобы результат попал в сообщение
            * Пока не работает
            */
-          // await db.mutation.updateChatRoom({
-          //   where: {
-          //     id: chatRoom.id,
-          //   },
-          //   data: {},
-          // });
 
           const {
             id: roomId,
@@ -308,6 +268,43 @@ class ChatMessageProcessor extends Processor {
 
 
         if (messageId) {
+
+          /**
+           * Если пользователь не состоит в текущем чате и это публичный чат, 
+           * то добавляем пользователя в него
+           */
+
+          // console.log("chatRoom", chatRoom);
+
+          if (chatRoom) {
+
+            const {
+              id: chatRoomId,
+              isPublic,
+              Members,
+            } = chatRoom;
+
+            // console.log("Members", Members);
+
+            if (isPublic && Members.findIndex(({ id }) => id === currentUserId) === -1) {
+
+              const result = await db.mutation.updateChatRoom({
+                where: {
+                  id: chatRoomId,
+                },
+                data: {
+                  Members: {
+                    connect: {
+                      id: currentUserId,
+                    },
+                  },
+                },
+              })
+                .catch(console.error);
+
+              // console.log("Members result", result);
+            }
+          }
 
 
           // Создаем уведомление, если сообщение не прочитано в течение минуты
@@ -470,6 +467,9 @@ class ChatMessageProcessor extends Processor {
         where:$chatRoomsWhere
       ){
         id
+        code
+        name
+        isPublic
         Members{
           id
           username
@@ -522,7 +522,7 @@ class Module extends PrismaModule {
 
   }
 
-  
+
   async chatMessage(source, args, ctx, info) {
 
     let objects = await this.chatMessages(source, args, ctx, info);
