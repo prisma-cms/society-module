@@ -29,3 +29,12 @@ input UserCreateManyWithoutRoomsInput {
   # create: [UserCreateWithoutRoomsInput!]
   connect: [UserWhereUniqueInput!]
 }
+
+input UserUpdateManyWithoutRoomsInput {
+  # create: [UserCreateWithoutRoomsInput!]
+  connect: [UserWhereUniqueInput!]
+  disconnect: [UserWhereUniqueInput!]
+  # delete: [UserWhereUniqueInput!]
+  # update: [UserUpdateWithWhereUniqueWithoutRoomsInput!]
+  # upsert: [UserUpsertWithWhereUniqueWithoutRoomsInput!]
+}

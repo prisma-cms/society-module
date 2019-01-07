@@ -14,6 +14,14 @@ input ChatMessageCreateInput {
   # ReadedBy: ChatMessageReadedCreateManyWithoutMessageInput
 }
 
+input ChatMessageUpdateInput {
+  content: Json
+  # contentText: String
+  # CreatedBy: UserUpdateOneWithoutMessagesInput
+  # Room: ChatRoomUpdateOneWithoutMessagesInput
+  # ReadedBy: ChatMessageReadedUpdateManyWithoutMessageInput
+}
+
 input ChatRoomCreateOneWithoutMessagesInput {
   to: ID
   # create: ChatRoomCreateWithoutMessagesInput
