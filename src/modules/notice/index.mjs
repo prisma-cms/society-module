@@ -97,6 +97,7 @@ class Module extends PrismaModule {
         // createNoticeProcessor: this.createNoticeProcessor.bind(this),
         // updateNoticeProcessor: this.updateNoticeProcessor.bind(this),
         deleteNotice: this.deleteNotice.bind(this),
+        deleteManyNotices: this.deleteManyNotices.bind(this),
 
       },
       Subscription: {
@@ -164,6 +165,48 @@ class Module extends PrismaModule {
   deleteNotice(source, args, ctx, info) {
 
     return ctx.db.mutation.deleteNotice(args, info);
+  }
+
+
+  /**
+   * For current user only
+   */
+  deleteManyNotices(source, args, ctx, info) {
+
+    const {
+      currentUser,
+    } = ctx;
+    
+    const {
+      id: currentUserId,
+    } = currentUser || {};
+
+    if(!currentUserId) {
+      return 0;
+    }
+
+    let {
+      where,
+    } = args;
+
+    where = {
+      AND: [
+        {
+          ...where,
+        },
+        {
+          User: {
+            id: currentUserId,
+          },
+        },
+      ],
+    }
+
+    Object.assign(args, {
+      where,
+    });
+
+    return ctx.db.mutation.deleteManyNotices(args, info);
   }
 
   NoticeResponse() {

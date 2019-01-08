@@ -4,6 +4,8 @@ type ChatRoom {
   createdAt: DateTime!
   updatedAt: DateTime!
   name: String!
+  description: String
+  image: String
   code: ID @unique
 
   Members: [User!]! @relation(name: "ChatRoomsMembers")

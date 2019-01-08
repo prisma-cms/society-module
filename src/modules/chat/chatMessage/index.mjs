@@ -342,7 +342,7 @@ class ChatMessageProcessor extends Processor {
             `)
               .then(async message => {
 
-                console.log(chalk.green("message"), message);
+                // console.log(chalk.green("message"), message);
 
                 // return;
 
@@ -494,6 +494,99 @@ class ChatMessageProcessor extends Processor {
 
   }
 
+
+  /**
+   * Отметка сообщения о прочтении.
+   * Для этого создается новая запись ReadedBy и удаляется нотис, если имеется
+   */
+  async markAsReaded(objectType, args, info) {
+
+    let result = false;
+
+    const {
+      currentUser,
+      db,
+    } = this.ctx;
+
+    const {
+      id: currentUserId,
+    } = currentUser || {};
+
+    if (currentUserId) {
+
+      let {
+        where,
+      } = args;
+
+      const message = await db.query.chatMessage({
+        where,
+      }, `
+        {
+          id
+          ReadedBy(
+            where: {
+              User: {
+                id: "${currentUserId}"
+              }
+            }
+          ){
+            id
+          }
+        }
+      `)
+        .catch(console.error);
+
+      if (message) {
+
+        const {
+          ReadedBy,
+        } = message;
+
+        /**
+         * Если нет еще отметки о прочтении, создаем
+         */
+        if (!ReadedBy.length) {
+
+          await db.mutation.updateChatMessage({
+            where,
+            data: {
+              ReadedBy: {
+                create: {
+                  User: {
+                    connect: {
+                      id: currentUserId,
+                    },
+                  },
+                },
+              },
+            },
+          })
+            .then(async r => {
+
+              result = true;
+
+              // Удаляем уведомление, если имеются
+              await db.mutation.deleteManyNotices({
+                where: {
+                  ChatMessage: where,
+                },
+              })
+              .catch(console.error)
+
+            });
+
+        }
+        else {
+          result = true;
+        }
+
+      }
+
+    }
+
+    return result;
+  }
+
 }
 
 class Module extends PrismaModule {
@@ -511,6 +604,7 @@ class Module extends PrismaModule {
       Mutation: {
         createChatMessageProcessor: this.createChatMessageProcessor.bind(this),
         updateChatMessageProcessor: this.updateChatMessageProcessor.bind(this),
+        markAsReadedChatMessage: this.markAsReadedChatMessage.bind(this),
 
       },
       Subscription: {
@@ -576,6 +670,11 @@ class Module extends PrismaModule {
   updateChatMessageProcessor(source, args, ctx, info) {
 
     return this.getProcessor(ctx).updateWithResponse("ChatMessage", args, info);
+  }
+
+  markAsReadedChatMessage(source, args, ctx, info) {
+
+    return this.getProcessor(ctx).markAsReaded("ChatMessage", args, info);
   }
 
   ChatMessageResponse() {
