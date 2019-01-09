@@ -110,6 +110,15 @@ class ChatRoomProcessor extends Processor {
         ){
           id
         }
+        Invitations(
+          where: {
+            User: {
+              id: "${currentUserId}"
+            },
+          }
+        ){
+          id
+        }
         isPublic
       }
     `);
@@ -122,13 +131,14 @@ class ChatRoomProcessor extends Processor {
     const {
       Members,
       isPublic,
+      Invitations,
     } = chatRoom;
 
     if (Members.length) {
       throw new Error("Вы уже состоите в этой комнате");
     }
 
-    if (!isPublic) {
+    if (!isPublic && !Invitations.length) {
       throw new Error("Нельзя вступить в приватную комнату без приглашения");
     }
 
@@ -141,7 +151,31 @@ class ChatRoomProcessor extends Processor {
           },
         },
       },
-    }, info);
+    }, info)
+      .then(async r => {
+
+        const {
+          id: roomId,
+        } = r || {}
+
+        if (Invitations.length) {
+
+          Invitations.map(n => {
+
+            db.mutation.deleteChatRoomInvitation({
+              where: {
+                id: n.id,
+              },
+            })
+              .catch(console.error);
+
+          })
+
+
+        }
+
+        return r;
+      });
 
     // return super.update("ChatRoom", {
     //   ...args,
@@ -417,7 +451,7 @@ class ChatRoomProcessor extends Processor {
 
         return room;
       })
-      // .catch(console.error);
+    // .catch(console.error);
 
 
     return result;
