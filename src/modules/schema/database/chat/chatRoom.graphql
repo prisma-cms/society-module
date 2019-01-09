@@ -16,5 +16,7 @@ type ChatRoom {
   # Call: Call @relation(name: "ChatRoomCall", onDelete: CASCADE)
 
   isPublic: Boolean @default(value: false)
+
+  Invitations: [ChatRoomInvitation!]!
 }
 

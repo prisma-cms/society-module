@@ -3,6 +3,7 @@ enum NoticeType{
   ChatMessage
   Call
   CallRequest
+  ChatRoomInvitation
 }
 
 type Notice{
@@ -10,5 +11,7 @@ type Notice{
   createdAt: DateTime!
   type: NoticeType!
   User: User! @relation(name: "NoticeUser")
+  CreatedBy: User @relation(name: "NoticeUserCreatedBy")
   ChatMessage: ChatMessage
+  ChatRoomInvitation: ChatRoomInvitation @relation(name: "ChatRoomInvitationNotice")
 }

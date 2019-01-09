@@ -25,11 +25,21 @@ export const prepareAccesibleRoomsQuery = function (args, ctx) {
   ];
 
   if (currentUserId) {
+
     OR.push({
       Members_some: {
         id: currentUserId,
       },
     });
+
+    OR.push({
+      Invitations_some: {
+        User: {
+          id: currentUserId,
+        }
+      },
+    });
+
   }
 
 

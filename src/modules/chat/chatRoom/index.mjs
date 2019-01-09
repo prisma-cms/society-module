@@ -78,6 +78,351 @@ class ChatRoomProcessor extends Processor {
     return super.mutate(method, args);
   }
 
+
+  async join(args, info) {
+
+    const {
+      db,
+      currentUser,
+    } = this.ctx;
+
+    let {
+      where,
+    } = args;
+
+    if (!currentUser) {
+      throw new Error("Пожалуйста, авторизуйтесь");
+    }
+
+    const {
+      id: currentUserId,
+    } = currentUser;
+
+    const chatRoom = await db.query.chatRoom({
+      where,
+    }, `
+      {
+        id,
+        Members(
+          where: {
+            id: "${currentUserId}"
+          },
+        ){
+          id
+        }
+        isPublic
+      }
+    `);
+
+
+    if (!chatRoom) {
+      throw new Error("Не была получена комната");
+    }
+
+    const {
+      Members,
+      isPublic,
+    } = chatRoom;
+
+    if (Members.length) {
+      throw new Error("Вы уже состоите в этой комнате");
+    }
+
+    if (!isPublic) {
+      throw new Error("Нельзя вступить в приватную комнату без приглашения");
+    }
+
+    return db.mutation.updateChatRoom({
+      ...args,
+      data: {
+        Members: {
+          connect: {
+            id: currentUserId,
+          },
+        },
+      },
+    }, info);
+
+    // return super.update("ChatRoom", {
+    //   ...args,
+    //   data: {},
+    // }, info);
+  }
+
+  async leave(args, info) {
+
+
+    // this.addError("wefwef");
+
+    // return {}
+
+
+    const {
+      db,
+      currentUser,
+    } = this.ctx;
+
+    let {
+      where,
+    } = args;
+
+    if (!currentUser) {
+      throw new Error("Пожалуйста, авторизуйтесь");
+    }
+
+    const {
+      id: currentUserId,
+    } = currentUser;
+
+    const chatRoom = await db.query.chatRoom({
+      where,
+    }, `
+      {
+        id,
+        Members(
+          where: {
+            id: "${currentUserId}"
+          },
+        ){
+          id
+        }
+        CreatedBy{
+          id
+        }
+      }
+    `);
+
+
+    if (!chatRoom) {
+      throw new Error("Не была получена комната");
+    }
+
+    const {
+      Members,
+      CreatedBy,
+    } = chatRoom;
+
+    if (CreatedBy.id === currentUserId) {
+      throw new Error("Нельзя покинуть свою комнату");
+    }
+
+    if (!Members.length) {
+      throw new Error("Вы не состоите в этой комнате");
+    }
+
+    return db.mutation.updateChatRoom({
+      ...args,
+      data: {
+        Members: {
+          disconnect: {
+            id: currentUserId,
+          },
+        },
+      },
+    }, info);
+
+    // return super.update("ChatRoom", {
+    //   ...args,
+    //   data: {},
+    // }, info);
+  }
+
+
+  async invite(args, info) {
+
+    let result = false;
+
+    let {
+      data: {
+        User,
+        ...data
+      },
+      where,
+    } = args;
+
+
+    const {
+      db,
+      currentUser,
+    } = this.ctx;
+
+
+    const {
+      id: currentUserId,
+    } = currentUser || {}
+
+
+    const InvitedUser = await db.query.user({
+      where: User,
+    });
+
+    if (!InvitedUser) {
+      throw new Error("Не был получен пользователь");
+    }
+
+    const {
+      id: invitedUserId,
+    } = InvitedUser;
+
+
+    const chatRoom = await db.query.chatRoom({
+      where,
+    }, `
+      {
+        id,
+        Invited: Members(
+          where: {
+            id: "${invitedUserId}"
+          },
+        ){
+          id
+        }
+        Current: Members(
+          where: {
+            id: "${currentUserId}"
+          },
+        ){
+          id
+        }
+        CreatedBy{
+          id
+        }
+        Invitations(
+          where: {
+            User: {
+              id: "${invitedUserId}"
+            },
+          }
+        ){
+          id
+        }
+      }
+    `);
+
+    // console.log("chatRoom", chatRoom);
+
+    if (!chatRoom) {
+      throw new Error("Не была получена комната");
+    }
+
+    const {
+      Invited,
+      Current,
+      CreatedBy,
+      Invitations,
+    } = chatRoom;
+
+    if (currentUserId === invitedUserId) {
+      throw new Error("Нельзя приглашать самого себя");
+    }
+
+    if (Invitations.length) {
+      throw new Error("Пользователь уже приглашен в эту комнату");
+    }
+
+    if (Invited.length) {
+      throw new Error("Пользователь уже в этой комнате");
+    }
+
+    if (!Current.length) {
+      throw new Error("Вы не состоите в этой комнате и не можете никого приглашасить");
+    }
+
+
+
+    Object.assign(data, {
+      Invitations: {
+        create: {
+          User: {
+            connect: User,
+          },
+          CreatedBy: {
+            connect: {
+              id: currentUserId,
+            },
+          },
+        },
+      },
+    });
+
+    Object.assign(args, {
+      data,
+    });
+
+
+    await db.mutation.updateChatRoom(args)
+      .then(async room => {
+
+        console.log("updateChatRoom", room);
+
+        if (room) {
+
+          result = true;
+
+          const {
+            id: roomId,
+          } = room;
+
+          /**
+           * Создаем уведомление для приглашенного
+           */
+
+          const ChatRoomInvitations = await db.query.chatRoomInvitations({
+            where: {
+              ChatRoom: {
+                id: roomId,
+              },
+              User,
+            },
+            last: 1,
+          })
+            .catch(console.error);
+
+          const ChatRoomInvitation = ChatRoomInvitations && ChatRoomInvitations[0] || null;
+
+          // console.log("ChatRoomInvitations", ChatRoomInvitations);
+
+          if (!ChatRoomInvitation) {
+            console.error(chalk.red("ChatRoomInvitation is empty"), roomId);
+          }
+          else {
+
+            const {
+              id: invitationId,
+            } = ChatRoomInvitation;
+
+            await db.mutation.createNotice({
+              data: {
+                type: "ChatRoomInvitation",
+                CreatedBy: {
+                  connect: {
+                    id: currentUserId,
+                  }
+                },
+                User: {
+                  connect: User,
+                },
+                ChatRoomInvitation: {
+                  connect: {
+                    id: invitationId,
+                  }
+                },
+              }
+            })
+              .catch(console.error);
+
+          }
+
+        }
+
+        return room;
+      })
+      // .catch(console.error);
+
+
+    return result;
+  }
+
 }
 
 class Module extends PrismaModule {
@@ -95,7 +440,9 @@ class Module extends PrismaModule {
       Mutation: {
         createChatRoomProcessor: this.createChatRoomProcessor.bind(this),
         updateChatRoomProcessor: this.updateChatRoomProcessor.bind(this),
-
+        joinChatRoom: this.joinChatRoom.bind(this),
+        leaveChatRoom: this.leaveChatRoom.bind(this),
+        inviteChatRoomProcessor: this.inviteChatRoomProcessor.bind(this),
       },
       Subscription: {
         chatRoom: {
@@ -201,6 +548,21 @@ class Module extends PrismaModule {
   updateChatRoomProcessor(source, args, ctx, info) {
 
     return this.getProcessor(ctx).updateWithResponse("ChatRoom", args, info);
+  }
+
+  joinChatRoom(source, args, ctx, info) {
+
+    return this.getProcessor(ctx).join(args, info);
+  }
+
+  leaveChatRoom(source, args, ctx, info) {
+
+    return this.getProcessor(ctx).leave(args, info);
+  }
+
+  inviteChatRoomProcessor(source, args, ctx, info) {
+
+    return this.getProcessor(ctx).invite(args, info);
   }
 
   ChatRoomResponse() {

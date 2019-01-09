@@ -1,0 +1,10 @@
+
+type ChatRoomInvitation{
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  CreatedBy: User! @relation(name: "ChatRoomInvitationCreatedBy")
+  User: User! @relation(name: "ChatRoomInvitationInvited")
+  ChatRoom: ChatRoom!
+  Notice: Notice @relation(name: "ChatRoomInvitationNotice", onDelete: CASCADE)
+}

@@ -1,3 +1,7 @@
+1.3.2
+===============================
+- Added ChatRoomInvitation
+
 1.3.1
 ===============================
 - Added ChatMessage::markAsReaded()

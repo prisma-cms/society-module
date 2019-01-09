@@ -77,6 +77,7 @@ class Module extends PrismaModule {
       "ChatRoomUpdateInput",
       "UserCreateManyWithoutRoomsInput",
       "UserUpdateManyWithoutRoomsInput",
+      // "ChatRoomInvitationUpdateManyWithoutRoomInput",
 
       "ChatMessageCreateInput",
       "ChatMessageUpdateInput",

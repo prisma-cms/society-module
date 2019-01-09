@@ -99,7 +99,14 @@ class ChatMessageProcessor extends Processor {
               Members_some: {
                 id: currentUserId
               },
-            }
+            },
+            {
+              Invitations_some: {
+                User: {
+                  id: currentUserId,
+                }
+              },
+            },
           ],
         },
       });
@@ -282,28 +289,63 @@ class ChatMessageProcessor extends Processor {
               id: chatRoomId,
               isPublic,
               Members,
+              Invitations,
             } = chatRoom;
 
             // console.log("Members", Members);
 
             // console.log("Members.findIndex", Members.findIndex(({ id }) => id === currentUserId));
 
-            if (isPublic && Members.findIndex(({ id }) => id === currentUserId) === -1) {
+            if (Members.findIndex(({ id }) => id === currentUserId) === -1) {
 
+              const Invitation = Invitations.find(n => n.User.id === currentUserId);
 
-              const result = await db.mutation.updateChatRoom({
-                where: {
-                  id: chatRoomId,
-                },
-                data: {
+              if (isPublic || Invitation) {
+
+                let data = {
                   Members: {
                     connect: {
                       id: currentUserId,
                     },
                   },
-                },
-              })
-                .catch(console.error);
+                }
+
+                /**
+                 * Если есть приглашение в комнату, удаляем его
+                 */
+                if(Invitation) {
+
+                  const {
+                    id: invitationId,
+                  } = Invitation;
+
+                  // console.log("invitationId", invitationId);
+
+                  Object.assign(data, {
+                    Invitations: {
+                      delete: [{
+                        id: invitationId,
+                      }],
+                    },
+                  });
+                }
+
+
+                const result = await db.mutation.updateChatRoom({
+                  where: {
+                    id: chatRoomId,
+                  },
+                  data,
+                })
+                  .then(r => {
+
+
+                    return r;
+                  })
+                  .catch(console.error);
+
+              }
+
 
               // console.log("Members result", result);
             }
@@ -477,6 +519,13 @@ class ChatMessageProcessor extends Processor {
           id
           username
         }
+        Invitations{
+          id
+          User{
+            id
+            username
+          }
+        }
       }
     }
   `, {
@@ -571,7 +620,7 @@ class ChatMessageProcessor extends Processor {
                   ChatMessage: where,
                 },
               })
-              .catch(console.error)
+                .catch(console.error)
 
             });
 

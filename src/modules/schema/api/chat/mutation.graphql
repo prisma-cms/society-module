@@ -10,6 +10,19 @@ type Mutation {
     data: ChatRoomUpdateInput!
     where: ChatRoomWhereUniqueInput!
   ): ChatRoomResponse!
+  
+  inviteChatRoomProcessor(
+    data: ChatRoomInviteInput!
+    where: ChatRoomWhereUniqueInput!
+  ): Boolean!
+  
+  joinChatRoom(
+    where: ChatRoomWhereUniqueInput!
+  ): ChatRoom
+
+  leaveChatRoom(
+    where: ChatRoomWhereUniqueInput!
+  ): ChatRoom
 
   # createChatMessagePublic(text: Json!, roomId: ID!): ChatMessage!
 
