@@ -1,9 +1,9 @@
 type Resource {
   id: ID! @unique
-  rating: Float! @default(value: 0)
-  positiveVotesCount: Int! @default(value: 0)
-  negativeVotesCount: Int! @default(value: 0)
-  neutralVotesCount: Int! @default(value: 0)
+  rating: Float @default(value: 0)
+  positiveVotesCount: Int @default(value: 0)
+  negativeVotesCount: Int @default(value: 0)
+  neutralVotesCount: Int @default(value: 0)
   # Thread: Thread @relation(name: "ResourceThread")
   CommentTarget: Resource @relation(name: "ResourceComments")
   Comments: [Resource!]! @relation(name: "ResourceComments")

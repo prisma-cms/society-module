@@ -1,3 +1,10 @@
+1.3.4
+===============================
+- Make Resource::rating not required
+- Make Resource::positiveVotesCount not required
+- Make Resource::negativeVotesCount not required
+- Make Resource::neutralVotesCount not required
+
 1.3.3
 ===============================
 - Added join room
