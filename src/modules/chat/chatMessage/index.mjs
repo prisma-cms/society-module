@@ -313,7 +313,7 @@ class ChatMessageProcessor extends Processor {
                 /**
                  * Если есть приглашение в комнату, удаляем его
                  */
-                if(Invitation) {
+                if (Invitation) {
 
                   const {
                     id: invitationId,
@@ -414,6 +414,11 @@ class ChatMessageProcessor extends Processor {
                             id: memberId,
                           }
                         },
+                        CreatedBy: {
+                          connect: {
+                            id: currentUserId,
+                          }
+                        },
                         ChatMessage: {
                           connect: {
                             id: messageId,
@@ -431,7 +436,7 @@ class ChatMessageProcessor extends Processor {
               });
 
 
-          }, 1000 * 30)
+          }, 1000 * 10)
 
         }
 
@@ -547,6 +552,7 @@ class ChatMessageProcessor extends Processor {
   /**
    * Отметка сообщения о прочтении.
    * Для этого создается новая запись ReadedBy и удаляется нотис, если имеется
+   * Нотисы надо удалять только для текущего пользователя
    */
   async markAsReaded(objectType, args, info) {
 
@@ -585,6 +591,9 @@ class ChatMessageProcessor extends Processor {
       `)
         .catch(console.error);
 
+
+      console.log(chalk.green("message"), message);
+
       if (message) {
 
         const {
@@ -610,24 +619,64 @@ class ChatMessageProcessor extends Processor {
               },
             },
           })
-            .then(async r => {
+          // .then(async r => {
 
-              result = true;
+          //   result = true;
 
-              // Удаляем уведомление, если имеются
-              await db.mutation.deleteManyNotices({
-                where: {
-                  ChatMessage: where,
-                },
-              })
-                .catch(console.error)
+          //   // Удаляем уведомление, если имеются
+          //   // await db.mutation.deleteManyNotices({
+          //   //   where: {
+          //   //     ChatMessage: where,
+          //   //   },
+          //   // })
+          //   //   .catch(console.error)
 
-            });
+
+          // });
+
 
         }
         else {
           result = true;
         }
+
+        /**
+         * Удалять уведомления надо по одному, потому что иначе не отрабатываются подписки
+         */
+        db.query.notices({
+          where: {
+            ChatMessage: where,
+          },
+        })
+          .then(notices => {
+
+            console.log(chalk.green("notices"), notices);
+
+            if (notices && notices.length) {
+
+              notices.map(n => {
+
+                const {
+                  id: noticeId,
+                } = n || {};
+
+                if (noticeId) {
+
+                  db.mutation.deleteNotice({
+                    where: {
+                      id: noticeId,
+                    },
+                  })
+                    .catch(console.error);
+
+                }
+
+              });
+
+            }
+
+          })
+          .catch(console.error);
 
       }
 

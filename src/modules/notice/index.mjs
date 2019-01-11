@@ -103,6 +103,68 @@ class Module extends PrismaModule {
       Subscription: {
         notice: {
           subscribe: async (parent, args, ctx, info) => {
+
+            const {
+              currentUser,
+            } = ctx;
+
+            const {
+              id: currentUserId,
+            } = currentUser || {};
+
+            if (!currentUserId) {
+              throw new Error("Необходимо авторизоваться");
+              // return "Необходимо авторизоваться";
+            }
+
+            let {
+              where,
+            } = args;
+
+
+            const {
+              node,
+              ...other
+            } = where || {};
+
+            const OR = [
+              {
+                User: {
+                  id: currentUserId,
+                },
+              },
+              {
+                CreatedBy: {
+                  id: currentUserId,
+                },
+              },
+            ];
+
+            where = {
+              AND: [
+                {
+                  ...node,
+                },
+                {
+                  ...other,
+                },
+                {
+                  node: {
+                    OR,
+                  },
+                },
+              ],
+
+            };
+
+            // console.log(chalk.green("notice where"), where);
+            // console.log(chalk.green("notice OR"), OR);
+            // console.log(chalk.green("notice where currentUserId"), currentUserId);
+
+            Object.assign(args, {
+              where,
+            });
+
             return ctx.db.subscription.notice(args, info)
           },
         },
@@ -176,12 +238,12 @@ class Module extends PrismaModule {
     const {
       currentUser,
     } = ctx;
-    
+
     const {
       id: currentUserId,
     } = currentUser || {};
 
-    if(!currentUserId) {
+    if (!currentUserId) {
       return 0;
     }
 

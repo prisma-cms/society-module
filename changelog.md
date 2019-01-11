@@ -1,3 +1,8 @@
+1.3.5
+===============================
+- Fix notice subscribe
+- Fix markAsReadedChatMessage
+
 1.3.4
 ===============================
 - Make Resource::rating not required
