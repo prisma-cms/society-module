@@ -34,6 +34,7 @@ class ChatMessageProcessor extends Processor {
 
     let {
       data: {
+        CreatedBy,
         Room: {
           to,
           ...Room
@@ -42,9 +43,207 @@ class ChatMessageProcessor extends Processor {
       },
     } = args;
 
-    const {
-      id: currentUserId,
-    } = await this.getUser(true);
+
+    Room = Room || {}
+
+    let {
+      connect,
+    } = Room;
+
+
+    let currentUserId;
+
+    let chatRoom;
+
+    console.log("create message data", args.data);
+
+    /**
+     * Мы можем явно передать от кого создается сообщение, если это выполняется со стороны сервера.
+     * Для того, чтобы с фронта не могли создавать сообщения от кого угодно. в схеме удаляем возможность
+     * передавать CreatedBy.
+     * Если не передано CreatedBy, проверяем доступность чат-комнаты.
+     */
+    if (!CreatedBy) {
+
+      const {
+        id,
+      } = await this.getUser(true);
+
+      currentUserId = id;
+
+      CreatedBy = {
+        connect: {
+          id: currentUserId,
+        },
+      }
+
+      /**
+       * Если это для текущего пользователя, то допускается возможность неявного указания комнаты
+       */
+
+
+      if (connect) {
+
+        const room = await db.query.chatRoom({
+          where: connect,
+        });
+
+
+        if (!room) {
+          return this.addError("Не была получена комната");
+        }
+
+
+        let {
+          id: roomId,
+        } = room || {}
+
+        // Пытаемся получить чат-комнату
+        chatRoom = await this.getRoomWithMember({
+          where: {
+            id: roomId,
+            OR: [
+              {
+                isPublic: true,
+              },
+              {
+                Members_some: {
+                  id: currentUserId
+                },
+              },
+              {
+                Invitations_some: {
+                  User: {
+                    id: currentUserId,
+                  }
+                },
+              },
+            ],
+          },
+        });
+
+        if (!chatRoom) {
+          return this.addError("Не была получена чат-комната");
+        }
+
+      }
+
+      else if (to) {
+
+        // Проверяем есть ли пользователь
+        const toUser = await db.query.user({
+          where: {
+            id: to,
+          },
+        });
+
+
+        if (!toUser) {
+          return this.addError("Не был получен пользователь");
+        }
+        else {
+
+          const {
+            id: toUserId,
+          } = toUser;
+
+          // Пытаемся получить чат-комнату
+          chatRoom = await this.getRoomWithMember({
+            where: {
+              AND: [{
+                Members_some: {
+                  id: currentUserId
+                },
+              }, {
+                Members_some: {
+                  id: toUserId,
+                },
+              }],
+              Members_none: { id_not_in: [currentUserId, toUserId] }
+            },
+          });
+
+          // console.log("chatRoom", chatRoom);
+
+          // Если нет чат-комнаты, создаем новую
+          if (!chatRoom) {
+
+            let name = (await db.query.users({
+              where: {
+                id_in: [currentUserId, toUser.id],
+              },
+            })).map(({
+              username,
+              firstname,
+              lastname,
+              fullname,
+            }) => fullname || [firstname, lastname].filter(n => n).join(" ") || username).join(", ");
+
+
+            Room = {
+              create: {
+                name,
+                Members: {
+                  connect: [{
+                    id: currentUserId,
+                  }, {
+                    id: toUserId,
+                  }],
+
+                  // connect: [{
+                  //   id: "cjcwr8ev954yz0116e6fxnx57",
+                  // },{
+                  //   id: "cjcww5hnt73fr0116nrl4vrj7",
+                  // }],
+                },
+                CreatedBy: {
+                  connect: {
+                    id: currentUserId,
+                  },
+                },
+              },
+            }
+
+
+
+          }
+          else {
+
+            /**
+             * Обновляем комнату, чтобы актуализировать сортировку комнат
+             * Важно это сделать раньше обновления сообщения, чтобы результат попал в сообщение
+             * Пока не работает
+             */
+
+            const {
+              id: roomId,
+            } = chatRoom;
+
+            Room = {
+              connect: {
+                id: roomId,
+              },
+            }
+          }
+
+        }
+
+      }
+
+      else {
+
+        return this.addError("Can not get roomId or recipient");
+      }
+
+    }
+    else {
+      
+      if(!connect){
+        return this.addError("Не указана комната");
+      }
+
+    }
+
 
 
     const {
@@ -55,17 +254,6 @@ class ChatMessageProcessor extends Processor {
       return this.addError("Сообщение не заполнено");
     }
 
-    Room = Room || {}
-
-
-    let {
-      connect,
-    } = Room;
-
-
-    let {
-      id: roomId,
-    } = connect || {}
 
     /**
      * Если указан roomId (ID комнаты), то смотрим по ней, и чтобы отправитель был в этой комнате,
@@ -80,155 +268,6 @@ class ChatMessageProcessor extends Processor {
     // } = args;
 
 
-
-    let chatRoom;
-
-
-    if (roomId) {
-
-
-      // Пытаемся получить чат-комнату
-      chatRoom = await this.getRoomWithMember({
-        where: {
-          id: roomId,
-          OR: [
-            {
-              isPublic: true,
-            },
-            {
-              Members_some: {
-                id: currentUserId
-              },
-            },
-            {
-              Invitations_some: {
-                User: {
-                  id: currentUserId,
-                }
-              },
-            },
-          ],
-        },
-      });
-
-      if (!chatRoom) {
-        return this.addError("Не была получена чат-комната");
-      }
-
-    }
-
-    else if (to) {
-
-      // Проверяем есть ли пользователь
-      const toUser = await db.query.user({
-        where: {
-          id: to,
-        },
-      });
-
-      // console.log(chalk.green("toUser"), toUser);
-
-
-
-      // console.log(chalk.green("Creat room args"), args);
-
-
-      if (!toUser) {
-        return this.addError("Не был получен пользователь");
-      }
-      else {
-
-        const {
-          id: toUserId,
-        } = toUser;
-
-        // Пытаемся получить чат-комнату
-        chatRoom = await this.getRoomWithMember({
-          where: {
-            AND: [{
-              Members_some: {
-                id: currentUserId
-              },
-            }, {
-              Members_some: {
-                id: toUserId,
-              },
-            }],
-            Members_none: { id_not_in: [currentUserId, toUserId] }
-          },
-        });
-
-        // console.log("chatRoom", chatRoom);
-
-        // Если нет чат-комнаты, создаем новую
-        if (!chatRoom) {
-
-          let name = (await db.query.users({
-            where: {
-              id_in: [currentUserId, toUser.id],
-            },
-          })).map(({
-            username,
-            firstname,
-            lastname,
-            fullname,
-          }) => fullname || [firstname, lastname].filter(n => n).join(" ") || username).join(", ");
-
-
-          Room = {
-            create: {
-              name,
-              Members: {
-                connect: [{
-                  id: currentUserId,
-                }, {
-                  id: toUserId,
-                }],
-
-                // connect: [{
-                //   id: "cjcwr8ev954yz0116e6fxnx57",
-                // },{
-                //   id: "cjcww5hnt73fr0116nrl4vrj7",
-                // }],
-              },
-              CreatedBy: {
-                connect: {
-                  id: currentUserId,
-                },
-              },
-            },
-          }
-
-
-
-        }
-        else {
-
-          /**
-           * Обновляем комнату, чтобы актуализировать сортировку комнат
-           * Важно это сделать раньше обновления сообщения, чтобы результат попал в сообщение
-           * Пока не работает
-           */
-
-          const {
-            id: roomId,
-          } = chatRoom;
-
-          Room = {
-            connect: {
-              id: roomId,
-            },
-          }
-        }
-
-      }
-
-    }
-
-    else {
-
-      return this.addError("Can not get roomId or recipient");
-    }
 
 
 
@@ -252,11 +291,7 @@ class ChatMessageProcessor extends Processor {
 
 
     Object.assign(data, {
-      CreatedBy: {
-        connect: {
-          id: currentUserId,
-        },
-      },
+      CreatedBy,
       Room,
     });
 
@@ -414,11 +449,7 @@ class ChatMessageProcessor extends Processor {
                             id: memberId,
                           }
                         },
-                        CreatedBy: {
-                          connect: {
-                            id: currentUserId,
-                          }
-                        },
+                        CreatedBy,
                         ChatMessage: {
                           connect: {
                             id: messageId,

@@ -1,3 +1,8 @@
+1.3.6
+===============================
+- Fix createChatMessage
+- Added CreateChatMessage::CreatedBy
+
 1.3.5
 ===============================
 - Fix notice subscribe
