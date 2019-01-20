@@ -1,3 +1,7 @@
+1.3.7
+===============================
+- Fix notice subscription
+
 1.3.6
 ===============================
 - Fix createChatMessage

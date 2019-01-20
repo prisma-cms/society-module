@@ -112,10 +112,34 @@ class Module extends PrismaModule {
               id: currentUserId,
             } = currentUser || {};
 
+            let OR = []
+
             if (!currentUserId) {
-              throw new Error("Необходимо авторизоваться");
+              // throw new Error("Необходимо авторизоваться");
               // return "Необходимо авторизоваться";
+              OR = [
+                {
+                  User: {
+                    id: "null",
+                  },
+                },
+              ];
             }
+            else {
+              OR = [
+                {
+                  User: {
+                    id: currentUserId,
+                  },
+                },
+                {
+                  CreatedBy: {
+                    id: currentUserId,
+                  },
+                },
+              ];
+            }
+
 
             let {
               where,
@@ -127,18 +151,6 @@ class Module extends PrismaModule {
               ...other
             } = where || {};
 
-            const OR = [
-              {
-                User: {
-                  id: currentUserId,
-                },
-              },
-              {
-                CreatedBy: {
-                  id: currentUserId,
-                },
-              },
-            ];
 
             where = {
               AND: [
