@@ -1,3 +1,7 @@
+1.3.9
+===============================
+- Fix search room for new message
+
 1.3.8
 ===============================
 - Added NotificationType::code

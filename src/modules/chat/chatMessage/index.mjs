@@ -150,6 +150,7 @@ class ChatMessageProcessor extends Processor {
           // Пытаемся получить чат-комнату
           chatRoom = await this.getRoomWithMember({
             where: {
+              isPublic: false,
               AND: [{
                 Members_some: {
                   id: currentUserId
@@ -289,6 +290,8 @@ class ChatMessageProcessor extends Processor {
     // if (!errors.length && success !== false) {
 
 
+
+    // return;
 
     Object.assign(data, {
       CreatedBy,
