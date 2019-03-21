@@ -7,7 +7,7 @@ import {
   prepareAccesibleMessagesQuery,
 } from "../../helpers";
 
-class ChatMessageProcessor extends Processor {
+export class ChatMessageProcessor extends Processor {
 
 
 
@@ -18,6 +18,7 @@ class ChatMessageProcessor extends Processor {
     this.objectType = "ChatMessage";
 
     this.private = true;
+    this.allowAnonymous = false;
 
   }
 
@@ -27,6 +28,11 @@ class ChatMessageProcessor extends Processor {
    * При этом создается или подключается чат-комната.
    */
   async create(objectType, args, info) {
+
+    const {
+      allowAnonymous,
+    } = this;
+
 
     const {
       db,
@@ -55,7 +61,6 @@ class ChatMessageProcessor extends Processor {
 
     let chatRoom;
 
-    console.log("create message data", args.data);
 
     /**
      * Мы можем явно передать от кого создается сообщение, если это выполняется со стороны сервера.
@@ -67,60 +72,89 @@ class ChatMessageProcessor extends Processor {
 
       const {
         id,
-      } = await this.getUser(true);
+      } = await this.getUser() || {};
 
       currentUserId = id;
 
-      CreatedBy = {
-        connect: {
-          id: currentUserId,
-        },
+      if (currentUserId) {
+
+        CreatedBy = {
+          connect: {
+            id: currentUserId,
+          },
+        }
+
+      }
+      else if (!allowAnonymous) {
+        return this.addError("Необходимо авторизоваться");
       }
 
       /**
        * Если это для текущего пользователя, то допускается возможность неявного указания комнаты
        */
 
+      // console.log("connect", connect);
 
       if (connect) {
 
         const room = await db.query.chatRoom({
           where: connect,
-        });
+        })
+          .catch(console.error);
 
 
         if (!room) {
-          return this.addError("Не была получена комната");
+          return this.addError("Не была получена чат-комната");
         }
 
+        // console.log(chalk.green("room"), room);
+        // return "sdfdsf"
 
         let {
           id: roomId,
         } = room || {}
 
+
+        let OR = [
+          {
+            isPublic: true,
+          },
+        ]
+
+
+        if (currentUserId) {
+
+          OR = OR.concat([
+            {
+              Members_some: {
+                id: currentUserId
+              },
+            },
+            {
+              Invitations_some: {
+                User: {
+                  id: currentUserId,
+                }
+              },
+            },
+          ]);
+
+        }
+
+        // console.log(chalk.green("OR"), OR);
+
+
         // Пытаемся получить чат-комнату
         chatRoom = await this.getRoomWithMember({
           where: {
             id: roomId,
-            OR: [
-              {
-                isPublic: true,
-              },
-              {
-                Members_some: {
-                  id: currentUserId
-                },
-              },
-              {
-                Invitations_some: {
-                  User: {
-                    id: currentUserId,
-                  }
-                },
-              },
-            ],
+            OR,
           },
-        });
+        })
+          .catch(console.error);
+
+        // console.log(chalk.green("chatRoom"), chatRoom);
+        // return "sdfdsf"
 
         if (!chatRoom) {
           return this.addError("Не была получена чат-комната");
@@ -128,14 +162,21 @@ class ChatMessageProcessor extends Processor {
 
       }
 
+
       else if (to) {
+
+        if (!currentUserId) {
+          return this.addError("Приватные сообщения можно отправлять только в существующие чат-комнаты.");
+          // return this.addError("Не была получена чат-комната");
+        }
 
         // Проверяем есть ли пользователь
         const toUser = await db.query.user({
           where: {
             id: to,
           },
-        });
+        })
+          .catch(console.error);
 
 
         if (!toUser) {
@@ -238,8 +279,8 @@ class ChatMessageProcessor extends Processor {
 
     }
     else {
-      
-      if(!connect){
+
+      if (!connect) {
         return this.addError("Не указана комната");
       }
 
@@ -289,6 +330,9 @@ class ChatMessageProcessor extends Processor {
 
     // if (!errors.length && success !== false) {
 
+    if (!Room) {
+
+    }
 
 
     // return;
@@ -721,7 +765,7 @@ class ChatMessageProcessor extends Processor {
 
 }
 
-class Module extends PrismaModule {
+export class Module extends PrismaModule {
 
 
   getResolvers() {

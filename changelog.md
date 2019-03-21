@@ -1,3 +1,7 @@
+1.4.0
+===============================
+- Allow anonymous messages
+
 1.3.9
 ===============================
 - Fix search room for new message
