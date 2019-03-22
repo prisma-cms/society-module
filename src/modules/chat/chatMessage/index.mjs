@@ -219,7 +219,7 @@ export class ChatMessageProcessor extends Processor {
               firstname,
               lastname,
               fullname,
-            }) => fullname || [firstname, lastname].filter(n => n).join(" ") || username).join(", ");
+            }) => fullname || [firstname, lastname].filter(n => n).join(" ") || username).filter(n => n && n.trim()).join(", ");
 
 
             Room = {

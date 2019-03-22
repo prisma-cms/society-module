@@ -1,3 +1,7 @@
+1.4.1
+===============================
+- Fix create new ChatRoom
+
 1.4.0
 ===============================
 - Allow anonymous messages
