@@ -10,7 +10,7 @@ input ChatMessageCreateInput {
   # roomId: ID
   content: Json
   # CreatedBy: UserCreateOneWithoutMessagesInput!
-  Room: ChatRoomCreateOneWithoutMessagesInput!
+  Room: ChatRoomCreateOneWithoutMessagesInput
   # ReadedBy: ChatMessageReadedCreateManyWithoutMessageInput
 }
 

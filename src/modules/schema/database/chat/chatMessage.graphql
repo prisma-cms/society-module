@@ -11,7 +11,7 @@ type ChatMessage {
 
   CreatedBy: User @relation(name: "ChatMessageCreatedBy")
   
-  Room: ChatRoom! @relation(name: "ChatRoomMessages")
+  Room: ChatRoom @relation(name: "ChatRoomMessages")
 
   # Cascade now works 
   # https://github.com/graphcool/prisma/issues/1936

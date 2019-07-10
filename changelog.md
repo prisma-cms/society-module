@@ -1,3 +1,7 @@
+1.4.2
+===============================
+- Became ChatMessage::Room not required
+
 1.4.1
 ===============================
 - Fix create new ChatRoom
