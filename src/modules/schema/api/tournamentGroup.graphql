@@ -1,0 +1,23 @@
+
+
+type TournamentGroupResponse{
+  success: Boolean!
+  message: String!
+  errors: [Error!]!
+  data: TournamentGroup
+}
+
+
+
+type Mutation {
+  
+  createTournamentGroupProcessor(
+    data: TournamentGroupCreateInput!
+  ): TournamentGroupResponse!
+  
+  updateTournamentGroupProcessor(
+    data: TournamentGroupUpdateInput!
+    where: TournamentGroupWhereUniqueInput!
+  ): TournamentGroupResponse!
+
+}

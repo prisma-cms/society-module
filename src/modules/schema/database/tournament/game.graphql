@@ -1,0 +1,26 @@
+
+"""Игра/матч"""
+type Game {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String
+  start_date: DateTime
+  end_date: DateTime
+  sequence: Int
+  CreatedBy: User @relation(name: "GameCreatedBy")
+
+  # """Раунды в рамках одной игры"""
+  # Rounds: [GameRound!]! @relation (name: "GameGameRounds")
+  
+  # """В рамках какого раунда проходит игра"""
+  # Round: GameRound @relation (name: "GameRoundGames")
+
+  # # Round: Round
+  Tourney: Tourney @relation (name: "TourneyGames")
+  Users: [User!]! @relation(name: "GameUsers")
+  Teams: [Team!]!
+  Parent: Game @relation(name: "Games")
+  Childs: [Game!]! @relation(name: "Games")
+  Results: [GameResult!]! @relation(name: "GameGameResults")
+}

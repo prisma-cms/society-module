@@ -1,0 +1,20 @@
+
+type TourneyResponse{
+  success: Boolean!
+  message: String!
+  errors: [Error!]!
+  data: Tourney
+}
+
+type Mutation {
+  
+  createTourneyProcessor(
+    data: TourneyCreateInput!
+  ): TourneyResponse!
+  
+  updateTourneyProcessor(
+    data: TourneyUpdateInput!
+    where: TourneyWhereUniqueInput!
+  ): TourneyResponse!
+
+}

@@ -1,0 +1,11 @@
+
+type Tournament {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String
+  code: ID @unique
+  CreatedBy: User @relation(name: "TournamentCreatedBy")
+  Tourneys: [Tourney!]! @relation (name: "TournamentTourneys")
+  Group: TournamentGroup @relation (name: "TournamentGroupTournaments")
+}

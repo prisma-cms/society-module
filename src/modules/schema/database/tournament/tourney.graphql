@@ -1,0 +1,13 @@
+"""Отдельный турнир в рамках турнамента"""
+type Tourney {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String
+  code: ID @unique
+  date: DateTime
+  CreatedBy: User @relation(name: "TourneyCreatedBy")
+  Tournament: Tournament @relation (name: "TournamentTourneys")
+  Users: [User!]! @relation(name: "TourneyUsers")
+  Games: [Game!]! @relation (name: "TourneyGames")
+}

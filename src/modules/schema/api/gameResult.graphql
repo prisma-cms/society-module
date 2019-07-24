@@ -1,0 +1,22 @@
+
+type GameResultResponse{
+  success: Boolean!
+  message: String!
+  errors: [Error!]!
+  data: GameResult
+}
+
+
+
+type Mutation {
+  
+  createGameResultProcessor(
+    data: GameResultCreateInput!
+  ): GameResultResponse!
+  
+  updateGameResultProcessor(
+    data: GameResultUpdateInput!
+    where: GameResultWhereUniqueInput!
+  ): GameResultResponse!
+
+}

@@ -1,0 +1,14 @@
+
+"""Результат игры. Достигается игроком и/или командой"""
+type GameResult {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  date: DateTime
+  name: String
+  CreatedBy: User @relation(name: "GameResultCreatedBy")
+  User: User @relation(name: "GameResultUser")
+  Team: Team @relation(name: "GameResultTeam")
+  Game: Game! @relation(name: "GameGameResults")
+  value: Float
+}
