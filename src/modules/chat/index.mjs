@@ -5,9 +5,9 @@
 //   Mutation as ReactCMSWebRtcMutation,
 // } from 'react-cms-webrtc/server/src/schema';
 
-import ChatRoomModule from "./chatRoom";
-import ChatMessageModule from "./chatMessage";
-import ChatMessageReadedModule from "./chatMessageReaded";
+// import ChatRoomModule from "./chatRoom";
+// import ChatMessageModule from "./chatMessage";
+// import ChatMessageReadedModule from "./chatMessageReaded";
 
 import resolvers from "./Query";
 
@@ -43,17 +43,17 @@ const { fileLoader, mergeTypes } = MergeSchema;
 
 class Module extends PrismaModule {
 
-  constructor(options = {}) {
+  // constructor(options = {}) {
 
-    super(options);
+  //   super(options);
 
-    this.mergeModules([
-      ChatRoomModule,
-      ChatMessageModule,
-      ChatMessageReadedModule,
-    ]);
+  //   this.mergeModules([
+  //     // ChatRoomModule,
+  //     // ChatMessageModule,
+  //     // ChatMessageReadedModule,
+  //   ]);
 
-  }
+  // }
 
 
 

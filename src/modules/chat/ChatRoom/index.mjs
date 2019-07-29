@@ -7,7 +7,7 @@ import {
   prepareAccesibleRoomsQuery,
 } from "../../helpers";
 
-class ChatRoomProcessor extends Processor {
+export class ChatRoomProcessor extends Processor {
 
 
 
@@ -459,7 +459,7 @@ class ChatRoomProcessor extends Processor {
 
 }
 
-class Module extends PrismaModule {
+export class ChatRoomModule extends PrismaModule {
 
 
   getResolvers() {
@@ -620,4 +620,4 @@ class Module extends PrismaModule {
 }
 
 
-export default Module;
+export default ChatRoomModule;

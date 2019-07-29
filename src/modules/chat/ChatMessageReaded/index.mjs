@@ -5,7 +5,7 @@ import PrismaModule from "@prisma-cms/prisma-module";
 
 
 
-class ChatMessageReadedProcessor extends Processor {
+export class ChatMessageReadedProcessor extends Processor {
 
 
 
@@ -55,7 +55,7 @@ class ChatMessageReadedProcessor extends Processor {
 
 }
 
-class Module extends PrismaModule {
+export class ChatMessageReadedModule extends PrismaModule {
 
 
   getResolvers() {
@@ -171,4 +171,4 @@ class Module extends PrismaModule {
 }
 
 
-export default Module;
+export default ChatMessageReadedModule;

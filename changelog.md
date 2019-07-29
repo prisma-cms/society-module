@@ -1,3 +1,7 @@
+1.5.0
+===============================
+- Code refactoring
+
 1.4.2
 ===============================
 - Became ChatMessage::Room not required

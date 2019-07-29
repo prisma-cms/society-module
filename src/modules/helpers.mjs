@@ -15,40 +15,49 @@ export const prepareAccesibleRoomsQuery = function (args, ctx) {
 
   const {
     id: currentUserId,
+    sudo,
   } = currentUser || {};
 
 
-  let OR = [
-    {
-      isPublic: true,
-    },
-  ];
+  if (!sudo) {
 
-  if (currentUserId) {
-
-    OR.push({
-      Members_some: {
-        id: currentUserId,
+    let OR = [
+      {
+        isPublic: true,
       },
-    });
+    ];
 
-    OR.push({
-      Invitations_some: {
-        User: {
+    if (currentUserId) {
+
+      OR.push({
+        Members_some: {
           id: currentUserId,
-        }
-      },
-    });
+        },
+      });
+
+      OR.push({
+        Invitations_some: {
+          User: {
+            id: currentUserId,
+          }
+        },
+      });
+
+    }
+
+    where = {
+      OR,
+      AND: where ? {
+        ...where,
+      } : undefined,
+    };
 
   }
 
 
-  return {
-    OR,
-    AND: where ? {
-      ...where,
-    } : undefined,
-  };
+  // console.log("prepareAccesibleRoomsQuery where", JSON.stringify(where, true, 2));
+
+  return where;
 }
 
 
@@ -67,31 +76,41 @@ export const prepareAccesibleMessagesQuery = function (args, ctx) {
 
   const {
     id: currentUserId,
+    sudo,
   } = currentUser || {};
 
 
-  let OR = [
-    {
-      Room: prepareAccesibleRoomsQuery({}, ctx),
-    }
-  ];
+  if (!sudo) {
 
-  if (currentUserId) {
-    OR.push({
-      CreatedBy: {
-        id: currentUserId,
-      },
-    });
+    let OR = [
+      {
+        Room: prepareAccesibleRoomsQuery({}, ctx),
+      }
+    ];
+
+    if (currentUserId) {
+      OR.push({
+        CreatedBy: {
+          id: currentUserId,
+        },
+      });
+    }
+
+
+    // console.log("prepareAccesibleMessagesQuery OR", JSON.stringify(OR, true, 2));
+
+    where = {
+      OR,
+      AND: where ? {
+        ...where,
+      } : undefined,
+    };
+
+    // console.log("prepareAccesibleMessagesQuery where", JSON.stringify(where, true, 2));
+
   }
 
-  // console.log("prepareAccesibleMessagesQuery OR", OR);
-
-  return {
-    OR,
-    AND: where ? {
-      ...where,
-    } : undefined,
-  };
+  return where;
 }
 
 /**

@@ -41,26 +41,29 @@ export class ChatMessageProcessor extends Processor {
     let {
       data: {
         CreatedBy,
-        Room: {
-          to,
-          ...Room
-        },
+        Room: RoomArgs,
         ...data
       },
     } = args;
 
+    let {
+      to,
+      ...Room
+    } = RoomArgs || {};
 
-    Room = Room || {}
 
     let {
       connect,
-    } = Room;
+    } = Room || {};
 
 
     let currentUserId;
 
     let chatRoom;
 
+    // console.log("ChatMessage::create args", JSON.stringify(args, true, 2));
+
+    // console.log("ChatMessage::create Room", JSON.stringify(Room, true, 2));
 
     /**
      * Мы можем явно передать от кого создается сообщение, если это выполняется со стороны сервера.
@@ -70,9 +73,12 @@ export class ChatMessageProcessor extends Processor {
      */
     if (!CreatedBy) {
 
+      const currentUser = await this.getUser();
+
       const {
         id,
-      } = await this.getUser() || {};
+        sudo,
+      } = currentUser || {};
 
       currentUserId = id;
 
@@ -88,6 +94,9 @@ export class ChatMessageProcessor extends Processor {
       else if (!allowAnonymous) {
         return this.addError("Необходимо авторизоваться");
       }
+
+
+      // console.log("ChatMessage::create currentUser", JSON.stringify(currentUser, true, 2));
 
       /**
        * Если это для текущего пользователя, то допускается возможность неявного указания комнаты
@@ -115,41 +124,54 @@ export class ChatMessageProcessor extends Processor {
         } = room || {}
 
 
-        let OR = [
-          {
-            isPublic: true,
-          },
-        ]
+        let OR;
 
 
-        if (currentUserId) {
+        if (!sudo) {
 
-          OR = OR.concat([
+          OR = [
             {
-              Members_some: {
-                id: currentUserId
-              },
+              isPublic: true,
             },
-            {
-              Invitations_some: {
-                User: {
-                  id: currentUserId,
-                }
+          ]
+
+
+          if (currentUserId) {
+
+            OR = OR.concat([
+              {
+                Members_some: {
+                  id: currentUserId
+                },
               },
-            },
-          ]);
+              {
+                Invitations_some: {
+                  User: {
+                    id: currentUserId,
+                  }
+                },
+              },
+            ]);
+
+          }
 
         }
 
+
         // console.log(chalk.green("OR"), OR);
+        
+        
+        let roomWhere = {
+          id: roomId,
+          OR,
+        };
+
+        // console.log(chalk.green("roomWhere"), JSON.stringify(roomWhere, true, 2));
 
 
         // Пытаемся получить чат-комнату
         chatRoom = await this.getRoomWithMember({
-          where: {
-            id: roomId,
-            OR,
-          },
+          where: roomWhere,
         })
           .catch(console.error);
 
@@ -167,7 +189,6 @@ export class ChatMessageProcessor extends Processor {
 
         if (!currentUserId) {
           return this.addError("Приватные сообщения можно отправлять только в существующие чат-комнаты.");
-          // return this.addError("Не была получена чат-комната");
         }
 
         // Проверяем есть ли пользователь
@@ -335,7 +356,9 @@ export class ChatMessageProcessor extends Processor {
     }
 
 
+    // this.addFieldError("test", "test");
     // return;
+
 
     Object.assign(data, {
       CreatedBy,
@@ -670,7 +693,7 @@ export class ChatMessageProcessor extends Processor {
         .catch(console.error);
 
 
-      console.log(chalk.green("message"), message);
+      // console.log(chalk.green("message"), message);
 
       if (message) {
 
@@ -728,7 +751,7 @@ export class ChatMessageProcessor extends Processor {
         })
           .then(notices => {
 
-            console.log(chalk.green("notices"), notices);
+            // console.log(chalk.green("notices"), notices);
 
             if (notices && notices.length) {
 
@@ -765,7 +788,7 @@ export class ChatMessageProcessor extends Processor {
 
 }
 
-export class Module extends PrismaModule {
+export class ChatMessageModule extends PrismaModule {
 
 
   getResolvers() {
@@ -874,4 +897,4 @@ export class Module extends PrismaModule {
 }
 
 
-export default Module;
+export default ChatMessageModule;

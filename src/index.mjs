@@ -1,6 +1,37 @@
 
 import Module from "./modules";
 
+
+import ChatRoomModule, {
+  ChatRoomProcessor,
+} from "./modules/chat/ChatRoom";
+
+export {
+  ChatRoomModule,
+  ChatRoomProcessor,
+};
+
+
+import ChatMessageModule, {
+  ChatMessageProcessor,
+} from "./modules/chat/ChatMessage";
+
+export {
+  ChatMessageModule,
+  ChatMessageProcessor,
+};
+
+
+import ChatMessageReadedModule, {
+  ChatMessageReadedProcessor,
+} from "./modules/chat/ChatMessageReaded";
+
+export {
+  ChatMessageReadedModule,
+  ChatMessageReadedProcessor,
+};
+
+
 import TournamentGroupModule, {
   TournamentGroupProcessor,
 } from "./modules/TournamentGroup";
@@ -61,6 +92,9 @@ export {
 
 
 export const Modules = [
+  ChatRoomModule,
+  ChatMessageModule,
+  ChatMessageReadedModule,
   TournamentGroupModule,
   TournamentModule,
   TourneyModule,
