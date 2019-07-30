@@ -481,7 +481,57 @@ export class ChatRoomModule extends PrismaModule {
       Subscription: {
         chatRoom: {
           subscribe: async (parent, args, ctx, info) => {
-            return ctx.db.subscription.chatRoom(args, info)
+
+            // console.log("Subscription chatRoom args", args);
+
+            // return ctx.db.subscription.chatRoom(args, info)
+
+            // console.log(chalk.green("chatRoom subs args"), args);
+
+            // console.log(chalk.green("ctx.currentUser"), ctx.currentUser);
+
+            // return "Sdfdsf";
+
+            const {
+              currentUser,
+            } = ctx;
+
+            const {
+              id: userId,
+            } = currentUser || {};
+
+            let where;
+
+            if (!userId) {
+              // throw (new Error("Please, log in"));
+              where = {
+                node: {
+                  id: null,
+                }
+              }
+            }
+            else {
+              where = {
+                node: {
+                  Members_some: {
+                    id: userId,
+                  }
+                }
+              }
+            }
+
+            // const userId = "cjcwr8ev954yz0116e6fxnx57";
+
+
+            // Очищаем все аргументы
+            info.fieldNodes.map(n => {
+              n.arguments = []
+            });
+
+            return ctx.db.subscription.chatRoom({
+              where,
+            }, info)
+
           },
         },
       },

@@ -19,51 +19,51 @@ const chatMessageReaded = {
 }
 
 
-const chatRoom = {
+// const chatRoom = {
 
-  subscribe: async (parent, args, ctx, info) => {
+//   subscribe: async (parent, args, ctx, info) => {
 
-    console.log(chalk.green("chatRoom subs args"), args);
+//     console.log(chalk.green("chatRoom subs args"), args);
 
-    // return "Sdfdsf";
+//     // return "Sdfdsf";
 
-    const {
-      where: {
-        token,
-      },
-    } = args;
+//     const {
+//       where: {
+//         token,
+//       },
+//     } = args;
 
-    const userId = await getUserId(ctx, token);
+//     const userId = await getUserId(ctx, token);
 
-    if (!userId) {
-      throw (new Error("Please, log in"));
-    }
+//     if (!userId) {
+//       throw (new Error("Please, log in"));
+//     }
 
-    // const userId = "cjcwr8ev954yz0116e6fxnx57";
+//     // const userId = "cjcwr8ev954yz0116e6fxnx57";
 
 
-    // Очищаем все аргументы
-    info.fieldNodes.map(n => {
-      n.arguments = []
-    });
+//     // Очищаем все аргументы
+//     info.fieldNodes.map(n => {
+//       n.arguments = []
+//     });
 
-    return ctx.db.subscription.chatRoom({
-      where: {
-        node: {
-          Members_some: {
-            id: userId,
-          }
-        }
-      }
-    }, info)
-    // return ctx.db.subscription.chatRoom(args, info)
-    // return ctx.db.subscription.chatRoom(args, info)
-  },
+//     return ctx.db.subscription.chatRoom({
+//       where: {
+//         node: {
+//           Members_some: {
+//             id: userId,
+//           }
+//         }
+//       }
+//     }, info)
+//     // return ctx.db.subscription.chatRoom(args, info)
+//     // return ctx.db.subscription.chatRoom(args, info)
+//   },
 
-}
+// }
 
 
 export default {
   chatMessageReaded,
-  chatRoom,
+  // chatRoom,
 }
