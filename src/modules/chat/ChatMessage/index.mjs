@@ -159,8 +159,8 @@ export class ChatMessageProcessor extends Processor {
 
 
         // console.log(chalk.green("OR"), OR);
-        
-        
+
+
         let roomWhere = {
           id: roomId,
           OR,
@@ -809,6 +809,34 @@ export class ChatMessageModule extends PrismaModule {
       Subscription: {
         chatMessage: {
           subscribe: async (parent, args, ctx, info) => {
+
+            // console.log("chatMessage subscribe");
+
+            let {
+              node,
+              ...where
+            } = args.where || {}
+
+            node = node || {};
+
+            // Object.assign(args, {
+            // });
+
+            node = this.prepareChatMessagesQueryArgs({
+              where: node,
+            }, ctx);
+
+            // console.log("chatMessage subscribe where node", JSON.stringify(node, true, 2));
+            
+            Object.assign(args, {
+              where: {
+                ...where,
+                node,
+              },
+            });
+
+            // console.log("chatMessage subscribe where args.where", JSON.stringify(args.where, true, 2));
+
             return ctx.db.subscription.chatMessage(args, info)
           },
         },

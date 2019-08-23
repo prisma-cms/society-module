@@ -4,6 +4,10 @@ import Processor from "@prisma-cms/prisma-processor";
 import PrismaModule from "@prisma-cms/prisma-module";
 
 
+import {
+  prepareAccesibleMessagesQuery,
+} from "../../helpers";
+
 
 export class ChatMessageReadedProcessor extends Processor {
 
@@ -75,39 +79,66 @@ export class ChatMessageReadedModule extends PrismaModule {
         chatMessageReaded: {
           subscribe: async (parent, args, ctx, info) => {
 
-            // console.log(chalk.green("chatRoom subs args"), args);
-
-            // // return "Sdfdsf";
-
-            // const {
-            //   where: {
-            //     token,
-            //   },
-            // } = args;
-
-            // const userId = await getUserId(ctx, token);
-
-            // if (!userId) {
-            //   throw (new Error("Please, log in"));
-            // }
-
-            // // const userId = "cjcwr8ev954yz0116e6fxnx57";
+            // console.log(chalk.green("chatMessageReaded subs args"), args);
 
 
-            // // Очищаем все аргументы
-            // info.fieldNodes.map(n => {
-            //   n.arguments = []
+            // console.log("chatMessage subscribe");
+
+            let {
+              node,
+              ...where
+            } = args.where || {}
+
+
+            let {
+              Message,
+              ...otherNode
+            } = node || {}
+
+            // Object.assign(args, {
             // });
 
-            // return ctx.db.subscription.chatRoom({
+            Message = prepareAccesibleMessagesQuery({
+              where: Message,
+            }, ctx);
+
+            // console.log("chatMessageReaded subscribe where Message", JSON.stringify(Message, true, 2));
+
+            let AND = []
+
+            if (otherNode) {
+              AND.push({
+                ...otherNode,
+              });
+            }
+
+            if (Message) {
+              AND.push({
+                Message,
+              });
+            }
+
+            where = {
+              ...where,
+              node: {
+                AND,
+              }
+            }
+
+            // Object.assign(args, {
             //   where: {
-            //     node: {
-            //       Members_some: {
-            //         id: userId,
-            //       }
-            //     }
-            //   }
-            // }, info)
+            //     ...where,
+            //     node,
+            //   },
+            // });
+
+            Object.assign(args, {
+              where,
+            });
+
+            // console.log("chatMessageReaded subscribe where args.where", JSON.stringify(where, true, 2));
+
+
             return ctx.db.subscription.chatMessageReaded(args, info)
           },
         },

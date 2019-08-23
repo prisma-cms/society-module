@@ -22,8 +22,6 @@ import {
   Mutation as ModuleMutation,
 } from './Mutation'
 
-import ModuleSubscription from './subscription';
-
 
 // import fs from "fs";
 
@@ -123,7 +121,6 @@ class Module extends PrismaModule {
         ...Mutation,
       },
       Subscription: {
-        ...ModuleSubscription,
         ...Subscription,
       },
       ...otherQuery,

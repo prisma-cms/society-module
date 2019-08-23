@@ -1,3 +1,7 @@
+1.5.2
+===============================
+- Check permissions on chatMessage subscription
+
 1.5.1
 ===============================
 - Fix chatRoom subscription
