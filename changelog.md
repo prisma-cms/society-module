@@ -1,3 +1,7 @@
+1.5.3
+===============================
+- Added Tourney::date_till
+
 1.5.2
 ===============================
 - Check permissions on chatMessage subscription

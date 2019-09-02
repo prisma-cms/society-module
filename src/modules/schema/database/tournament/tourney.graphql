@@ -5,7 +5,10 @@ type Tourney {
   updatedAt: DateTime!
   name: String
   code: ID @unique
+  """Дата начала турнира"""
   date: DateTime
+  """Дата окончания турнира"""
+  date_till: DateTime
   CreatedBy: User @relation(name: "TourneyCreatedBy")
   Tournament: Tournament @relation (name: "TournamentTourneys")
   Users: [User!]! @relation(name: "TourneyUsers")
