@@ -8,7 +8,7 @@ import chalk from 'chalk';
 
 const getChatRooms = async function (query, parent, args, ctx, info) {
 
-  console.log(chalk.green("getChatRooms args"), args);
+  // console.log(chalk.green("getChatRooms args"), args);
 
   let userId;
 
@@ -44,7 +44,7 @@ const getChatRooms = async function (query, parent, args, ctx, info) {
 
 const chatRoomsConnection = function (parent, args, ctx, info) {
 
-  console.log(chalk.green("chatRoomsConnection args"), args);
+  // console.log(chalk.green("chatRoomsConnection args"), args);
 
   return getChatRooms(ctx.db.query.chatRoomsConnection, parent, args, ctx, info);
 };

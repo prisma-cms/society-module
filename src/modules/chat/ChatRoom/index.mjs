@@ -387,7 +387,7 @@ export class ChatRoomProcessor extends Processor {
     await db.mutation.updateChatRoom(args)
       .then(async room => {
 
-        console.log("updateChatRoom", room);
+        // console.log("updateChatRoom", room);
 
         if (room) {
 

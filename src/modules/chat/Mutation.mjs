@@ -132,11 +132,11 @@ const createChatMessageProcessor = async function (source, args, ctx, info) {
       },
     });
 
-    console.log(chalk.green("toUser"), toUser);
+    // console.log(chalk.green("toUser"), toUser);
 
 
 
-    console.log(chalk.green("Creat room args"), args);
+    // console.log(chalk.green("Creat room args"), args);
 
 
     if (!toUser) {
@@ -200,7 +200,7 @@ const createChatMessageProcessor = async function (source, args, ctx, info) {
         };
  
 
-        console.log(chalk.green("Creat chatRoom chatRoomData"), chatRoomData);
+        // console.log(chalk.green("Creat chatRoom chatRoomData"), chatRoomData);
 
 
         chatRoom = await db.mutation.createChatRoom({
