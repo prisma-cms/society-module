@@ -1,7 +1,7 @@
 {
   "name": "@prisma-cms/society-module",
   "description": "Society module for prisma-cms",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "main": "src/",
   "files": [
     "src"

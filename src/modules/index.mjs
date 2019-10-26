@@ -18,7 +18,7 @@ const { createWriteStream, unlinkSync } = fs;
 const { fileLoader, mergeTypes } = MergeSchema
 
 
-import UserModule from "./user";
+// import UserModule from "./user";
 import ResourceModule from "./resource";
 import NoticeModule from "./notice";
 import ChatModule from "./chat";
@@ -32,7 +32,7 @@ class Module extends PrismaModule {
     super(props);
     
     this.mergeModules([
-      UserModule,
+      // UserModule,
       ResourceModule,
       NoticeModule,
       ChatModule,

@@ -1,3 +1,9 @@
+1.5.4
+===============================
+- Remove @prisma-cms/user-module from prod
+- Remove Query::chatMessageReadedsConnection
+- Remove Query::chatMessageReaded
+
 1.5.3
 ===============================
 - Added Tourney::date_till

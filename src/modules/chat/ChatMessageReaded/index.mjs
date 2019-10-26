@@ -67,8 +67,8 @@ export class ChatMessageReadedModule extends PrismaModule {
 
     return {
       Query: {
-        chatMessageReadedsConnection: this.chatMessageReadedsConnection,
-        chatMessageReaded: this.chatMessageReaded,
+        // chatMessageReadedsConnection: this.chatMessageReadedsConnection,
+        // chatMessageReaded: this.chatMessageReaded,
       },
       Mutation: {
         createChatMessageReadedProcessor: this.createChatMessageReadedProcessor.bind(this),
