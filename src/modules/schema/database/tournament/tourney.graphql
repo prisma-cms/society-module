@@ -11,6 +11,9 @@ type Tourney {
   date_till: DateTime
   CreatedBy: User @relation(name: "TourneyCreatedBy")
   Tournament: Tournament @relation (name: "TournamentTourneys")
-  Users: [User!]! @relation(name: "TourneyUsers")
+  
+  # Users: [User!]! @relation(name: "TourneyUsers")
+  Players: [TourneyPlayer!]! @relation(name: "TourneyPlayers")
+
   Games: [Game!]! @relation (name: "TourneyGames")
 }

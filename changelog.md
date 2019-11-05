@@ -1,3 +1,7 @@
+1.5.5
+===============================
+- Added TourneyPlayer
+
 1.5.4
 ===============================
 - Remove @prisma-cms/user-module from prod

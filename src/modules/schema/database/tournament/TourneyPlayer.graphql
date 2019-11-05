@@ -1,0 +1,9 @@
+
+"""
+Игрок, участвующий в турнире
+"""
+type TourneyPlayer{
+  id: ID! @unique
+  Tourney: Tourney! @relation(name: "TourneyPlayers")
+  User: User!
+}
