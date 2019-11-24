@@ -121,9 +121,9 @@ class Module extends PrismaModule {
       votes: (source, args, ctx, info) => ctx.db.query.votes({}, info),
       votesConnection: (source, args, ctx, info) => ctx.db.query.votesConnection({}, info),
       
-      resource: (source, args, ctx, info) => ctx.db.query.resource({}, info),
-      resources: (source, args, ctx, info) => ctx.db.query.resources({}, info),
-      resourcesConnection: (source, args, ctx, info) => ctx.db.query.resourcesConnection({}, info),
+      // resource: (source, args, ctx, info) => ctx.db.query.resource(args, info),
+      // resources: (source, args, ctx, info) => ctx.db.query.resources(args, info),
+      // resourcesConnection: (source, args, ctx, info) => ctx.db.query.resourcesConnection(args, info),
     });
     
 

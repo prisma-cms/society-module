@@ -1,3 +1,7 @@
+1.5.6
+===============================
+- Remove resources resolvers
+
 1.5.5
 ===============================
 - Added TourneyPlayer
