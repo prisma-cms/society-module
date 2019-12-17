@@ -1,3 +1,7 @@
+1.6.0
+===============================
+- Breaking changes: Resource::CommentTarget renamed to Resource::Topic
+
 1.5.6
 ===============================
 - Remove resources resolvers
