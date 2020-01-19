@@ -1,0 +1,10 @@
+
+
+# Отметка о прочтении
+type ChatMessageReaded {
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  Message: ChatMessage! @relation(name: "ChatMessageReadedByMessage", onDelete: SET_NULL)
+  User: User! @relation(name: "ChatMessageReadedByUser", onDelete: SET_NULL)
+}
+ 

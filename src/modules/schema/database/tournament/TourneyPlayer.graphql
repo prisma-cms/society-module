@@ -3,7 +3,7 @@
 Игрок, участвующий в турнире
 """
 type TourneyPlayer{
-  id: ID! @unique
+  id: ID! @unique @id
   Tourney: Tourney! @relation(name: "TourneyPlayers")
   User: User!
 }

@@ -1,3 +1,7 @@
+1.7.0
+===============================
+- Update schema
+
 1.6.0
 ===============================
 - Breaking changes: Resource::CommentTarget renamed to Resource::Topic

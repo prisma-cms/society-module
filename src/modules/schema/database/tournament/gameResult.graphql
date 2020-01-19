@@ -1,9 +1,9 @@
 
 """Результат игры. Достигается игроком и/или командой"""
 type GameResult {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   date: DateTime
   name: String
   CreatedBy: User @relation(name: "GameResultCreatedBy")

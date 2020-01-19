@@ -1,8 +1,8 @@
 
 type ResourceTag {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   status: TagStatus! @default(value: Active)
   Resource: Resource! @relation(name: "ResourcesTagsResource")
   Tag: Tag! @relation(name: "ResourcesTagsTag")

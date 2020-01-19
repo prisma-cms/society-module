@@ -1,5 +1,5 @@
 type Resource {
-  id: ID! @unique
+  id: ID! @unique @id
   rating: Float @default(value: 0)
   positiveVotesCount: Int @default(value: 0)
   negativeVotesCount: Int @default(value: 0)

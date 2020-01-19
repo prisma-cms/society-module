@@ -1,9 +1,9 @@
 
 
 type ChatMessage {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
 
   content: Json
   """Raw text from content"""
@@ -17,13 +17,3 @@ type ChatMessage {
   # https://github.com/graphcool/prisma/issues/1936
   ReadedBy: [ChatMessageReaded!]! @relation(name: "ChatMessageReadedByMessage", onDelete: CASCADE)
 }
-
-
-# Отметка о прочтении
-type ChatMessageReaded {
-  id: ID! @unique
-  createdAt: DateTime!
-  Message: ChatMessage! @relation(name: "ChatMessageReadedByMessage", onDelete: SET_NULL)
-  User: User! @relation(name: "ChatMessageReadedByUser", onDelete: SET_NULL)
-}
- 

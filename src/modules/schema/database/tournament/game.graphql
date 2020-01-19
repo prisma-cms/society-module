@@ -1,9 +1,9 @@
 
 """Игра/матч"""
 type Game {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   name: String
   start_date: DateTime
   end_date: DateTime

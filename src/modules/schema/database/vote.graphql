@@ -1,8 +1,8 @@
 
 type Vote {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   Resource: Resource! @relation(name: "ResourceVotes")
   User: User! @relation(name: "UserVotes")
   value: Float!

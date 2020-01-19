@@ -6,9 +6,9 @@ enum TagStatus {
 }
 
 type Tag {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   name: String! @unique
   # count: Int! @default(value: 0)
   # active: Boolean! @default(value: true)

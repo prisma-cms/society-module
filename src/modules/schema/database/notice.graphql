@@ -7,8 +7,9 @@ enum NoticeType{
 }
 
 type Notice{
-  id: ID! @unique
-  createdAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   type: NoticeType!
   User: User! @relation(name: "NoticeUser")
   CreatedBy: User @relation(name: "NoticeUserCreatedBy")

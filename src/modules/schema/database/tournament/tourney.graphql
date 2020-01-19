@@ -1,8 +1,8 @@
 """Отдельный турнир в рамках турнамента"""
 type Tourney {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  id: ID! @unique @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   name: String
   code: ID @unique
   """Дата начала турнира"""
