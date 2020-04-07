@@ -5,6 +5,6 @@ type ChatRoomInvitation{
   updatedAt: DateTime! @updatedAt
   CreatedBy: User! @relation(name: "ChatRoomInvitationCreatedBy")
   User: User! @relation(name: "ChatRoomInvitationInvited")
-  ChatRoom: ChatRoom!
+  ChatRoom: ChatRoom! @relation(name: "ChatRoomInvitations")
   Notice: Notice @relation(name: "ChatRoomInvitationNotice" onDelete: CASCADE link: INLINE)
 }

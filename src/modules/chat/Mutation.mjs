@@ -3,7 +3,7 @@
 import {
   getUserId,
 } from '../utilites';
-import chalk from 'chalk';
+// import chalk from 'chalk';
 
 
 const getRoomWithMember = async function (args, ctx) {
@@ -16,34 +16,65 @@ const getRoomWithMember = async function (args, ctx) {
     where,
   } = args;
 
-  let chatRoom;
 
-  const chatRooms = await db.request(`
-    query chatRooms(
-      $chatRoomsWhere:ChatRoomWhereInput
-    ){
-      chatRooms(
-        where:$chatRoomsWhere
-      ){
+  return db.query.chatRooms({
+    where,
+    first: 1,
+  }, `
+    {
+      id
+      Members{
         id
-        Members{
-          id
-          username
-        }
+        username
       }
     }
-  `, {
-      chatRoomsWhere: where,
-    }).then(r => r.data.chatRooms)
-    .catch(e => e);
+  `)
+    .then(([chatRoom]) => {
 
-  if (chatRooms instanceof Error) {
-    return chatRooms;
-  }
+      // console.log('Mutation getRoomWithMember chatRoom', chatRoom);
 
-  chatRoom = chatRooms ? chatRooms[0] : null;
+      return chatRoom;
+    });
 
-  return chatRoom;
+
+  // let chatRoom;
+
+  // const chatRooms = await db.request(`
+  //   query chatRooms(
+  //     $chatRoomsWhere:ChatRoomWhereInput
+  //   ){
+  //     chatRooms(
+  //       where:$chatRoomsWhere
+  //     ){
+  //       id
+  //       Members{
+  //         id
+  //         username
+  //       }
+  //     }
+  //   }
+  // `, {
+  //   chatRoomsWhere: where,
+  // })
+  //   .then(r => {
+
+  //     console.log('getRoomWithMember result', r);
+
+  //     return r.data.chatRooms;
+  //   })
+  // // .catch(e => e);
+
+  // /**
+  //  * Не понятно почему здесь возвращал объект ошибки.
+  //  * Судя по всему это кривая логика.
+  //  */
+  // // if (chatRooms instanceof Error) {
+  // //   return chatRooms;
+  // // }
+
+  // chatRoom = chatRooms ? chatRooms[0] : null;
+
+  // return chatRoom;
 
 }
 
@@ -198,7 +229,7 @@ const createChatMessageProcessor = async function (source, args, ctx, info) {
             },
           },
         };
- 
+
 
         // console.log(chalk.green("Creat chatRoom chatRoomData"), chatRoomData);
 
@@ -206,10 +237,10 @@ const createChatMessageProcessor = async function (source, args, ctx, info) {
         chatRoom = await db.mutation.createChatRoom({
           data: chatRoomData,
         })
-        .catch(error => {
-          console.error("Creat chatRoom error", error);
-          throw error;
-        });
+          .catch(error => {
+            console.error("Creat chatRoom error", error);
+            throw error;
+          });
 
         /**
          * Получаем комнату с участниками, так как при создании они не участвуют в выдаче
@@ -399,7 +430,7 @@ const createChatMessageProcessor = async function (source, args, ctx, info) {
 }
 
 
-const updateChatRoom = function(source, args, ctx, info){
+const updateChatRoom = function (source, args, ctx, info) {
 
   return ctx.db.mutation.updateChatRoom(args, info);
 }

@@ -3,20 +3,28 @@ type ChatRoom {
   id: ID! @unique @id
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
-  name: String!
+  name: String! @default(value: "")
   description: String
   image: String
   code: ID @unique
 
   Members: [User!]! @relation(name: "ChatRoomsMembers")
-  CreatedBy: User! @relation(name: "ChatRoomCreatedBy", onDelete: SET_NULL)
+  CreatedBy: User! @relation(name: "ChatRoomCreatedBy")
 
-  Messages: [ChatMessage!]! @relation(name: "ChatRoomMessages")
+  Messages: [ChatMessage!]! @relation(name: "ChatRoomMessages" onDelete: CASCADE)
 
   # Call: Call @relation(name: "ChatRoomCall", onDelete: CASCADE)
 
+  """Чат-комната и сообщения в ней видны всем"""
   isPublic: Boolean @default(value: false)
 
-  Invitations: [ChatRoomInvitation!]!
+  """Разрешается писать анонимным пользователям"""
+  allowAnonymous: Boolean @default(value: false)
+
+  """Флаг песочницы (в эту комнату прилетают сообщения от анонимных пользователей)"""
+  sandbox: Boolean @default(value: false)
+
+  """Приглашенные в комнату пользователи"""
+  Invitations: [ChatRoomInvitation!]! @relation(name: "ChatRoomInvitations" onDelete: CASCADE)
 }
 

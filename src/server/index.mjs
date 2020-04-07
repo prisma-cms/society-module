@@ -20,4 +20,7 @@ const resolvers = module.getResolvers();
 startServer({
   typeDefs: 'src/schema/generated/api.graphql',
   resolvers,
+  contextOptions: {
+    // debug: true,
+  },
 });

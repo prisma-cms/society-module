@@ -17,8 +17,12 @@ export class ChatMessageProcessor extends Processor {
 
     this.objectType = "ChatMessage";
 
-    this.private = true;
-    this.allowAnonymous = false;
+    // this.private = true;
+
+    /**
+     * Разрешается ли слать анонимные сообщения в рамках проекта
+     */
+    this.allowAnonymous = true;
 
   }
 
@@ -29,6 +33,23 @@ export class ChatMessageProcessor extends Processor {
    */
   async create(objectType, args, info) {
 
+    /**
+     * Отправитель
+     */
+    let Sender;
+
+    /**
+     * Получатель сообщения. Нужен для того, чтобы определиться,
+     * можно ему отправить сообщение или нет.
+     */
+    let Receiptor;
+
+    /**
+     * Целевая комната.
+     * Если уже есть, то из нее будем получать разрешения.
+     */
+    let TargetChatRoom;
+
     const {
       allowAnonymous,
     } = this;
@@ -36,7 +57,10 @@ export class ChatMessageProcessor extends Processor {
 
     const {
       db,
+      currentUser,
     } = this.ctx;
+
+    Sender = currentUser;
 
     let {
       data: {
@@ -66,14 +90,15 @@ export class ChatMessageProcessor extends Processor {
     // console.log("ChatMessage::create Room", JSON.stringify(Room, true, 2));
 
     /**
+     * Всю логику для внешних запросов следует обрабатывать именно здесь.
      * Мы можем явно передать от кого создается сообщение, если это выполняется со стороны сервера.
      * Для того, чтобы с фронта не могли создавать сообщения от кого угодно. в схеме удаляем возможность
      * передавать CreatedBy.
      * Если не передано CreatedBy, проверяем доступность чат-комнаты.
+     * По сути, из-за ограничения схемы, при внешних запросах CreatedBy всегда отсутствует,
+     * так что основная логика находится именно в этом блоке.
      */
     if (!CreatedBy) {
-
-      const currentUser = await this.getUser();
 
       const {
         id,
@@ -81,6 +106,12 @@ export class ChatMessageProcessor extends Processor {
       } = currentUser || {};
 
       currentUserId = id;
+
+      /**
+       * Здесь уже следует определиться с получателем и комнатой,
+       * так как в зависимости от их настроек будет определяться можно им
+       * отправлять сообщение или нет
+       */
 
       if (currentUserId) {
 
@@ -111,10 +142,16 @@ export class ChatMessageProcessor extends Processor {
         })
           .catch(console.error);
 
+        // console.log('room', room);
+
 
         if (!room) {
           return this.addError("Не была получена чат-комната");
         }
+
+        // console.log('TargetChatRoom room 1', room);
+
+        TargetChatRoom = room;
 
         // console.log(chalk.green("room"), room);
         // return "sdfdsf"
@@ -187,9 +224,14 @@ export class ChatMessageProcessor extends Processor {
 
       else if (to) {
 
-        if (!currentUserId) {
-          return this.addError("Приватные сообщения можно отправлять только в существующие чат-комнаты.");
+        let createdById;
+
+        if (currentUserId) {
+          createdById = currentUserId;
         }
+        // else {
+        //   return this.addError("Приватные сообщения можно отправлять только в существующие чат-комнаты.");
+        // }
 
         // Проверяем есть ли пользователь
         const toUser = await db.query.user({
@@ -205,63 +247,149 @@ export class ChatMessageProcessor extends Processor {
         }
         else {
 
+          /**
+           * Если отправитель не анонимный, то пытаемся
+           * получить совместную с получателем комнату.
+           * А если анонимный, то пытаемся получить публичную комнату-мусорку,
+           * или, если такой нет, то создаем ее. Такая комната по-умолчанию
+           * будет публичная, и все дальнейшие анонимные сообщения будут
+           * сыпаться в нее. При этом комната будет считаться созданная получателем.
+           * Если получатель в дальнейшем эту комнату сделает приватной, то новые
+           * сообщения будут падать в новую комнату.
+           */
+
           const {
             id: toUserId,
+            acceptChatMessageAnonymous,
+            acceptChatMessageNewRoom,
           } = toUser;
 
-          // Пытаемся получить чат-комнату
-          chatRoom = await this.getRoomWithMember({
-            where: {
-              isPublic: false,
-              AND: [{
-                Members_some: {
-                  id: currentUserId
+          let sandbox;
+          let isPublic;
+
+          if (currentUserId) {
+
+            // Пытаемся получить чат-комнату
+            chatRoom = await this.getRoomWithMember({
+              where: {
+                isPublic: false,
+                AND: [{
+                  Members_some: {
+                    id: currentUserId
+                  },
+                }, {
+                  Members_some: {
+                    id: toUserId,
+                  },
+                }],
+                Members_none: { id_not_in: [currentUserId, toUserId] }
+              },
+            });
+
+          }
+          else {
+
+            /**
+             * Проверяем разрешил ли пользователь отправлять ему сообщения
+             * анонимным пользователям
+             */
+            if (!acceptChatMessageAnonymous) {
+
+              return this.addError("Пользователь не разрешил отправлять ему анонимные сообщения.");
+            }
+            else {
+
+              /**
+               * Пытаемся получить песочную чат-комнату.
+               * Если комната получена, то можно слать сообщение.
+               * Если нет, то проверяем разрешено ли создавать новую комнату для общения.
+               */
+              chatRoom = await this.getRoomWithMember({
+                where: {
+                  CreatedBy: {
+                    id: toUserId,
+                  },
+                  isPublic: true,
+                  sandbox: true,
                 },
-              }, {
-                Members_some: {
-                  id: toUserId,
-                },
-              }],
-              Members_none: { id_not_in: [currentUserId, toUserId] }
-            },
-          });
+              });
+
+              // console.log("sandbox chatRoom", chatRoom);
+
+              /**
+               * Проверяем разрешил ли пользователь создавать с ним новые чат-комнаты
+               */
+              if (!acceptChatMessageNewRoom) {
+
+                return this.addError("Пользователь не разрешил заводить с ним новые диалоги.");
+              }
+              else {
+
+                /**
+                 * Если можно, то создаем новую чат-комнату от имени получателя.
+                 */
+                createdById = toUserId;
+
+                sandbox = true;
+                isPublic = true;
+              }
+
+            }
+
+          }
+
 
           // console.log("chatRoom", chatRoom);
+          // console.log("chatRoom json", JSON.stringify(chatRoom, true, 2));
+
 
           // Если нет чат-комнаты, создаем новую
           if (!chatRoom) {
 
-            let name = (await db.query.users({
-              where: {
-                id_in: [currentUserId, toUser.id],
-              },
-            })).map(({
-              username,
-              firstname,
-              lastname,
-              fullname,
-            }) => fullname || [firstname, lastname].filter(n => n).join(" ") || username).filter(n => n && n.trim()).join(", ");
+            // console.log("chatRoom", chatRoom);
 
+            const usersIds = [currentUserId, toUserId].filter(n => n);
+
+            if (!usersIds) {
+              return this.addError('Не был указан ни один пользователь');
+            }
+
+            // console.log('usersIds', usersIds);
+
+            let name = "";
+
+            if (usersIds.length) {
+              name = (await db.query.users({
+                where: {
+                  id_in: usersIds,
+                },
+              }))
+                .map(({
+                  username,
+                  firstname,
+                  lastname,
+                  fullname,
+                }) => fullname || [firstname, lastname].filter(n => n).join(" ") || username)
+                .filter(n => n && n.trim())
+                .join(", ");
+            }
+
+
+            if (!createdById) {
+              return this.addError('Не был получен создатель комнаты');
+            }
 
             Room = {
               create: {
                 name,
+                sandbox,
+                isPublic,
                 Members: {
-                  connect: [{
-                    id: currentUserId,
-                  }, {
-                    id: toUserId,
-                  }],
-
-                  // connect: [{
-                  //   id: "cjcwr8ev954yz0116e6fxnx57",
-                  // },{
-                  //   id: "cjcww5hnt73fr0116nrl4vrj7",
-                  // }],
+                  connect: usersIds.map(id => ({ id })),
                 },
                 CreatedBy: {
                   connect: {
-                    id: currentUserId,
+                    id: createdById,
                   },
                 },
               },
@@ -277,6 +405,11 @@ export class ChatMessageProcessor extends Processor {
              * Важно это сделать раньше обновления сообщения, чтобы результат попал в сообщение
              * Пока не работает
              */
+
+            // console.log('create TargetChatRoom chatRoom TargetChatRoom', JSON.stringify(TargetChatRoom, true, 2));
+            // console.log('create TargetChatRoom chatRoom', JSON.stringify(chatRoom, true, 2));
+
+            TargetChatRoom = chatRoom;
 
             const {
               id: roomId,
@@ -298,9 +431,28 @@ export class ChatMessageProcessor extends Processor {
         return this.addError("Can not get roomId or recipient");
       }
 
+
+      /**
+       * В этот момент нам нужен объект чат-комнаты, чтобы решить,
+       * можно создавать сообщение или нет.
+       * Но комнаты может и не быть, если это сообщение в новую комнату.
+       */
+
+      // console.log('create TargetChatRoom', JSON.stringify(TargetChatRoom, true, 2));
+
+      // console.log('CreatedBy', JSON.stringify(CreatedBy, true, 2));
+
+      // if (!CreatedBy) {
+      //   return this.addError("Необходимо авторизоваться");
+      // }
+
+
     }
     else {
 
+      /**
+       * ToDo: надо разобраться с дальнейшей логикой.
+       */
       if (!connect) {
         return this.addError("Не указана комната");
       }
@@ -351,9 +503,9 @@ export class ChatMessageProcessor extends Processor {
 
     // if (!errors.length && success !== false) {
 
-    if (!Room) {
+    // if (!Room) {
 
-    }
+    // }
 
 
     // this.addFieldError("test", "test");
@@ -369,6 +521,11 @@ export class ChatMessageProcessor extends Processor {
     Object.assign(args, {
       data,
     });
+
+
+    // console.log('create args', JSON.stringify(args, true, 2));
+
+    // return;
 
     return await super.create(objectType, args, info)
       .then(async r => {
@@ -401,7 +558,7 @@ export class ChatMessageProcessor extends Processor {
 
             // console.log("Members.findIndex", Members.findIndex(({ id }) => id === currentUserId));
 
-            if (Members.findIndex(({ id }) => id === currentUserId) === -1) {
+            if (currentUserId && Members.findIndex(({ id }) => id === currentUserId) === -1) {
 
               const Invitation = Invitations.find(n => n.User.id === currentUserId);
 
@@ -435,18 +592,18 @@ export class ChatMessageProcessor extends Processor {
                   });
                 }
 
+                // console.log('updateChatRoom data', JSON.stringify(data, true, 2));
 
-                const result = await db.mutation.updateChatRoom({
+                await db.mutation.updateChatRoom({
                   where: {
                     id: chatRoomId,
                   },
                   data,
                 })
-                  .then(r => {
+                  // .then(r => {
 
-
-                    return r;
-                  })
+                  //   return r;
+                  // })
                   .catch(console.error);
 
               }
@@ -457,9 +614,8 @@ export class ChatMessageProcessor extends Processor {
           }
 
 
-          // Создаем уведомление, если сообщение не прочитано в течение минуты
+          // Создаем уведомление, если сообщение не прочитано в течение заданного времени
           // и если нет уведомлений в этой ветке
-
           setTimeout(async () => {
 
             await db.query.chatMessage({
@@ -493,43 +649,50 @@ export class ChatMessageProcessor extends Processor {
 
                 // return;
 
-                const {
-                  Room,
-                  ReadedBy,
-                } = message;
+                /**
+                 * Сообщение к этому моменту может уже быть удалено
+                 */
+                if (message) {
 
-                const {
-                  Members = [],
-                } = Room || {};
+                  const {
+                    Room,
+                    ReadedBy,
+                  } = message;
 
-                Members
-                  .filter(({ id }) => ReadedBy.findIndex(n => n.User.id === id) === -1)
-                  .map(async member => {
+                  const {
+                    Members = [],
+                  } = Room || {};
+
+                  Members
+                    .filter(({ id }) => ReadedBy.findIndex(n => n.User.id === id) === -1)
+                    .map(async member => {
 
 
-                    const {
-                      id: memberId,
-                    } = member;
+                      const {
+                        id: memberId,
+                      } = member;
 
-                    await db.mutation.createNotice({
-                      data: {
-                        type: "ChatMessage",
-                        User: {
-                          connect: {
-                            id: memberId,
-                          }
-                        },
-                        CreatedBy,
-                        ChatMessage: {
-                          connect: {
-                            id: messageId,
-                          }
-                        },
-                      }
-                    })
-                      .catch(console.error);
+                      await db.mutation.createNotice({
+                        data: {
+                          type: "ChatMessage",
+                          User: {
+                            connect: {
+                              id: memberId,
+                            }
+                          },
+                          CreatedBy,
+                          ChatMessage: {
+                            connect: {
+                              id: messageId,
+                            }
+                          },
+                        }
+                      })
+                        .catch(console.error);
 
-                  });
+                    });
+
+                }
 
               })
               .catch(error => {
@@ -600,6 +763,8 @@ export class ChatMessageProcessor extends Processor {
 
   async getRoomWithMember(args) {
 
+    // console.log('getRoomWithMember args', JSON.stringify(args, true, 2));
+
     const {
       db,
     } = this.ctx;
@@ -607,6 +772,35 @@ export class ChatMessageProcessor extends Processor {
     const {
       where,
     } = args;
+
+    return db.query.chatRooms({
+      where,
+      first: 1,
+    }, `
+      {
+        id
+        code
+        name
+        isPublic
+        Members{
+          id
+          username
+        }
+        Invitations{
+          id
+          User{
+            id
+            username
+          }
+        }
+      }
+    `)
+      .then(([chatRoom]) => {
+
+        // console.log('chatMessage getRoomWithMember chatRoom', chatRoom);
+
+        return chatRoom;
+      });
 
     let chatRoom;
 
@@ -635,8 +829,14 @@ export class ChatMessageProcessor extends Processor {
       }
     }
   `, {
-        chatRoomsWhere: where,
-      }).then(r => r.data.chatRooms)
+      chatRoomsWhere: where,
+    })
+      .then(r => {
+
+        // console.log('chatMessage getRoomWithMember result', r);
+
+        return r.data.chatRooms;
+      })
       .catch(e => e);
 
     if (chatRooms instanceof Error) {
@@ -827,7 +1027,7 @@ export class ChatMessageModule extends PrismaModule {
             }, ctx);
 
             // console.log("chatMessage subscribe where node", JSON.stringify(node, true, 2));
-            
+
             Object.assign(args, {
               where: {
                 ...where,

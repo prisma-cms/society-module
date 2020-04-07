@@ -1,5 +1,15 @@
 
 
+
+
+/**
+ * Сам модуль экспериментально отключен. Вероятней всего это легаси.
+ * Внутренние классы рабочие
+ */
+
+
+
+
 // import {
 //   Query as ReactCMSWebRtcQuery,
 //   Mutation as ReactCMSWebRtcMutation,

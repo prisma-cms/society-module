@@ -13,6 +13,6 @@ type Notice{
   type: NoticeType!
   User: User! @relation(name: "NoticeUser")
   CreatedBy: User @relation(name: "NoticeUserCreatedBy")
-  ChatMessage: ChatMessage
+  ChatMessage: ChatMessage @relation(name: "ChatMessageNotice")
   ChatRoomInvitation: ChatRoomInvitation @relation(name: "ChatRoomInvitationNotice")
 }

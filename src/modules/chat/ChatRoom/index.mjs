@@ -567,6 +567,8 @@ export class ChatRoomModule extends PrismaModule {
       where: this.prepareChatRoomsQueryArgs(args, ctx),
     });
 
+    // console.log('chatRoomsConnection args', JSON.stringify(args, true, 2));
+
     return ctx.db.query.chatRoomsConnection(args, info);
   }
 

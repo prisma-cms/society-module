@@ -21,7 +21,7 @@ const { fileLoader, mergeTypes } = MergeSchema
 // import UserModule from "./user";
 import ResourceModule from "./resource";
 import NoticeModule from "./notice";
-import ChatModule from "./chat";
+// import ChatModule from "./chat";
 
 
 class Module extends PrismaModule {
@@ -30,12 +30,12 @@ class Module extends PrismaModule {
   constructor(props = {}) {
 
     super(props);
-    
+
     this.mergeModules([
       // UserModule,
       ResourceModule,
       NoticeModule,
-      ChatModule,
+      // ChatModule,
     ]);
 
   }
@@ -101,43 +101,32 @@ class Module extends PrismaModule {
 
   getResolvers() {
 
-    const resolvers = super.getResolvers();
+    const {
+      Query,
+      ...resolvers
+    } = super.getResolvers();
 
+    return {
+      ...resolvers,
+      Query: {
+        ...Query,
+        tag: (source, args, ctx, info) => ctx.db.query.tag({}, info),
+        tags: (source, args, ctx, info) => ctx.db.query.tags({}, info),
+        tagsConnection: (source, args, ctx, info) => ctx.db.query.tagsConnection({}, info),
 
-    Object.assign(resolvers.Query, {
-      tag: (source, args, ctx, info) => ctx.db.query.tag({}, info),
-      tags: (source, args, ctx, info) => ctx.db.query.tags({}, info),
-      tagsConnection: (source, args, ctx, info) => ctx.db.query.tagsConnection({}, info),
+        resourceTag: (source, args, ctx, info) => ctx.db.query.resourceTag({}, info),
+        resourceTags: (source, args, ctx, info) => ctx.db.query.resourceTags({}, info),
+        resourceTagsConnection: (source, args, ctx, info) => ctx.db.query.resourceTagsConnection({}, info),
 
-      resourceTag: (source, args, ctx, info) => ctx.db.query.resourceTag({}, info),
-      resourceTags: (source, args, ctx, info) => ctx.db.query.resourceTags({}, info),
-      resourceTagsConnection: (source, args, ctx, info) => ctx.db.query.resourceTagsConnection({}, info),
+        notificationType: (source, args, ctx, info) => ctx.db.query.notificationType({}, info),
+        notificationTypes: (source, args, ctx, info) => ctx.db.query.notificationTypes({}, info),
+        notificationTypesConnection: (source, args, ctx, info) => ctx.db.query.notificationTypesConnection({}, info),
 
-      notificationType: (source, args, ctx, info) => ctx.db.query.notificationType({}, info),
-      notificationTypes: (source, args, ctx, info) => ctx.db.query.notificationTypes({}, info),
-      notificationTypesConnection: (source, args, ctx, info) => ctx.db.query.notificationTypesConnection({}, info),
-
-      vote: (source, args, ctx, info) => ctx.db.query.vote({}, info),
-      votes: (source, args, ctx, info) => ctx.db.query.votes({}, info),
-      votesConnection: (source, args, ctx, info) => ctx.db.query.votesConnection({}, info),
-      
-      // resource: (source, args, ctx, info) => ctx.db.query.resource(args, info),
-      // resources: (source, args, ctx, info) => ctx.db.query.resources(args, info),
-      // resourcesConnection: (source, args, ctx, info) => ctx.db.query.resourcesConnection(args, info),
-    });
-    
-
-    Object.assign(resolvers.Mutation, this.Mutation);
-
-    Object.assign(resolvers.Subscription, this.Subscription);
-
-
-    Object.assign(resolvers, {
-    });
-
-    // console.log("resolvers", resolvers);
-
-    return resolvers;
+        vote: (source, args, ctx, info) => ctx.db.query.vote({}, info),
+        votes: (source, args, ctx, info) => ctx.db.query.votes({}, info),
+        votesConnection: (source, args, ctx, info) => ctx.db.query.votesConnection({}, info),
+      },
+    };
   }
 
 

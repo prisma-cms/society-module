@@ -1,3 +1,11 @@
+1.8.0
+===============================
+- Added ChatRoom::allowAnonymous
+- Added ChatRoom::sandbox
+- Added User::acceptChatMessageAnonymous
+- Added User::acceptChatMessageNewRoom
+- Improved anonymous messages
+
 1.7.0
 ===============================
 - Update schema

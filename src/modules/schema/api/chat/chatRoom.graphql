@@ -7,21 +7,33 @@ type ChatRoomResponse{
 }
 
 input ChatRoomCreateInput {
+  code: ID
   name: String!
   Members: UserCreateManyWithoutRoomsInput
   # CreatedBy: UserCreateOneWithoutCreatedRoomsInput!
   # Messages: ChatMessageCreateManyWithoutRoomInput
   isPublic: Boolean = false
-  code: ID
+
+  """Разрешается писать анонимным пользователям"""
+  allowAnonymous: Boolean
+
+  """Флаг песочницы (в эту комнату прилетают сообщения от анонимных пользователей)"""
+  sandbox: Boolean
 }
 
 input  ChatRoomUpdateInput {
+  code: ID
   name: String
   Members: UserUpdateManyWithoutRoomsInput
   # CreatedBy: UserUpdateOneWithoutCreatedRoomsInput
   # Messages: ChatMessageUpdateManyWithoutRoomInput
   isPublic: Boolean
-  code: ID
+
+  """Разрешается писать анонимным пользователям"""
+  allowAnonymous: Boolean
+
+  """Флаг песочницы (в эту комнату прилетают сообщения от анонимных пользователей)"""
+  sandbox: Boolean
   # Invitations: ChatRoomInvitationUpdateManyWithoutRoomInput
 }
 

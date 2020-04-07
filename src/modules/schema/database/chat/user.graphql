@@ -1,10 +1,17 @@
 
 type User {
-  Rooms: [ChatRoom!]! @relation(name: "ChatRoomsMembers")
+  Rooms: [ChatRoom!]! @relation(name: "ChatRoomsMembers", onDelete: CASCADE)
   CreatedRooms: [ChatRoom!]! @relation(name: "ChatRoomCreatedBy", onDelete: CASCADE)
 
-  Messages: [ChatMessage!]! @relation(name: "ChatMessageCreatedBy")
-  ReadedMessages: [ChatMessageReaded!]! @relation(name: "ChatMessageReadedByUser")
+  Messages: [ChatMessage!]! @relation(name: "ChatMessageCreatedBy", onDelete: CASCADE)
+  ReadedMessages: [ChatMessageReaded!]! @relation(name: "ChatMessageReadedByUser", onDelete: CASCADE)
 
-  Notices: [Notice!]! @relation(name: "NoticeUser")
+  Notices: [Notice!]! @relation(name: "NoticeUser", onDelete: CASCADE)
+
+  """Разрешены ли чат-сообщения от анонимных пользователей"""
+  acceptChatMessageAnonymous: Boolean @default(value: false)
+
+  """Разрешено ли другому пользователю начать новый диалог с данным пользователем"""
+  acceptChatMessageNewRoom: Boolean @default(value: false)
 }
+
