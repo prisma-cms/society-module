@@ -9,9 +9,12 @@ type User {
   Notices: [Notice!]! @relation(name: "NoticeUser", onDelete: CASCADE)
 
   """Разрешены ли чат-сообщения от анонимных пользователей"""
-  acceptChatMessageAnonymous: Boolean @default(value: false)
+  acceptChatMessageAnonymous: Boolean @default(value: true)
 
-  """Разрешено ли другому пользователю начать новый диалог с данным пользователем"""
-  acceptChatMessageNewRoom: Boolean @default(value: false)
+  """Разрешено ли анонимному пользователю начать новый диалог с данным пользователем"""
+  acceptNewChatRoomAnonymous: Boolean @default(value: true)
+
+  """Разрешено ли авторизованному пользователю начать новый диалог с данным пользователем"""
+  acceptNewChatRoom: Boolean @default(value: true)
 }
 

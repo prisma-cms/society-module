@@ -1,3 +1,9 @@
+1.8.1
+===============================
+- Rename User::acceptChatMessageNewRoom to User::acceptNewChatRoom
+- Added User::acceptNewChatRoomAnonymous
+- Fix create new rooms
+
 1.8.0
 ===============================
 - Added ChatRoom::allowAnonymous

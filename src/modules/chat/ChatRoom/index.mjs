@@ -45,6 +45,12 @@ export class ChatRoomProcessor extends Processor {
 
     connect = connect || [];
 
+    /**
+     * ToDo: Надо фильтровать подключаемых пользователей
+     * по признаку acceptNewChatRoom, то есть разрешает
+     * ли пользователь новые диалоги с ним.
+     */
+
     connect.push({
       id: currentUserId,
     });

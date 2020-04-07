@@ -261,7 +261,8 @@ export class ChatMessageProcessor extends Processor {
           const {
             id: toUserId,
             acceptChatMessageAnonymous,
-            acceptChatMessageNewRoom,
+            acceptNewChatRoomAnonymous,
+            acceptNewChatRoom,
           } = toUser;
 
           let sandbox;
@@ -317,22 +318,12 @@ export class ChatMessageProcessor extends Processor {
               // console.log("sandbox chatRoom", chatRoom);
 
               /**
-               * Проверяем разрешил ли пользователь создавать с ним новые чат-комнаты
+               * Если можно, то создаем новую чат-комнату от имени получателя.
                */
-              if (!acceptChatMessageNewRoom) {
+              createdById = toUserId;
 
-                return this.addError("Пользователь не разрешил заводить с ним новые диалоги.");
-              }
-              else {
-
-                /**
-                 * Если можно, то создаем новую чат-комнату от имени получателя.
-                 */
-                createdById = toUserId;
-
-                sandbox = true;
-                isPublic = true;
-              }
+              sandbox = true;
+              isPublic = true;
 
             }
 
@@ -345,6 +336,18 @@ export class ChatMessageProcessor extends Processor {
 
           // Если нет чат-комнаты, создаем новую
           if (!chatRoom) {
+
+            /**
+               * Проверяем разрешил ли пользователь создавать с ним новые чат-комнаты
+               */
+            if (!acceptNewChatRoom) {
+
+              return this.addError("Пользователь не разрешил заводить с ним новые диалоги.");
+            }
+            else if (!currentUserId && !acceptNewChatRoomAnonymous) {
+
+              return this.addError("Пользователь не разрешил заводить с ним новые диалоги неавторизованным пользователям.");
+            }
 
             // console.log("chatRoom", chatRoom);
 
