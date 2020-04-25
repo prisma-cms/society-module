@@ -22,7 +22,7 @@ export class ChatMessageProcessor extends Processor {
     /**
      * Разрешается ли слать анонимные сообщения в рамках проекта
      */
-    this.allowAnonymous = true;
+    this.allowAnonymous = false;
 
   }
 
